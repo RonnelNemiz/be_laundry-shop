@@ -48,7 +48,6 @@ class AuthController extends Controller
             'email' => 'required|max:191',
             'password' => 'required',
         ]);
-
         if (auth()->attempt($request->only(['email', 'password']))) {
             $user = auth()->user();
             $data = $user->createToken(env('APP_URL'))->accessToken;
