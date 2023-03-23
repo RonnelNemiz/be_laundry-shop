@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Profile;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,32 +15,43 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|max:191',
+        // dd($request->all());
+        $validated = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'purok' => 'required',
+            'brgy' => 'required',
+            'municipality' => 'required',
+            'contact_number' => 'required',
+            'land_mark' => 'required',
             'email' => 'required|email|max:191|unique:users,email',
             'password' => 'required|min:8',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation Fails',
-                'errors' => $validator->errors()
-            ], 422);
-        } else {
+        if($validated){
             $user = User::create([
-                'name' => $request->name,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
                 'email' => $request->email,
+                'role' => $request->role,
                 'password' => Hash::make($request->password),
             ]);
-
-            $token = $user->createToken($user->email . '_Token')->plainTextToken;
+            $profile = new Profile();
+            $profile->user_id = $user['id'];
+            $profile->purok = $request->purok;
+            $profile->brgy = $request->brgy;
+            $profile->land_mark = $request->land_mark;
+            $profile->municipality = $request->municipality;
+            $profile->contact_number = $request->contact_number;
+            $profile->save();
 
             return response()->json([
-                'status' => 200,
-                'username' => $user->name,
-                'token' => $token,
-                'message' => 'Registration Successfull',
-            ], 200);
+                'code' => 200,
+                'message' => 'success'
+            ]);
+        }
+        else{
+            abort(402,'Failed to create');
         }
     }
 
@@ -60,5 +73,10 @@ class AuthController extends Controller
         } else {
             abort(422, 'Invalid Credentials');
         }
+    }
+
+    public function getCustomers(){
+        $customers = User::with('profile')->where('role','Customer')->get();
+        return $customers;
     }
 }
