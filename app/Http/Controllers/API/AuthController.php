@@ -30,14 +30,14 @@ class AuthController extends Controller
 
         if($validated){
             $user = User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
                 'email' => $request->email,
                 'role' => $request->role,
                 'password' => Hash::make($request->password),
             ]);
             $profile = new Profile();
             $profile->user_id = $user['id'];
+            $profile->first_name = $request->first_name;
+            $profile->last_name = $request->last_name;
             $profile->purok = $request->purok;
             $profile->brgy = $request->brgy;
             $profile->land_mark = $request->land_mark;
@@ -79,4 +79,13 @@ class AuthController extends Controller
         $customers = User::with('profile')->where('role','Customer')->get();
         return $customers;
     }
+
+    // public function updateCustomers(Request $request, $id)
+    // {
+    //     $customers = User::find($id);
+    //     $customers->first_name = $request('first_name');
+    //     $customers->save();
+
+
+    // }
 }
