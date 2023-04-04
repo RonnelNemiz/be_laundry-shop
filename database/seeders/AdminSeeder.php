@@ -17,8 +17,6 @@ class AdminSeeder extends Seeder
     {
         $params = [
             'email' => 'treslabanderas@admin.com',
-            'first_name' => 'Admin',
-            'last_name' => 'Admin',
             'role' => 'Administrator',
             'password' => Hash::make('stress_labanderas'),
         ];
