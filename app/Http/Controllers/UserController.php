@@ -33,35 +33,35 @@ class UserController extends Controller
     {
        
         
-            // $search = $request->search;
-    
-            // $query = Profile::query()
-            //     ->whereHas('user', function ($query) {
-            //         $query->whereHas('roles', function ($query) {
-            //             $query->where('name', 'Customer');
-            //         });
-            //     });
-    
-            // if (!is_null($search)) {
-            //     $query->where('first_name', 'LIKE', "%$search%")->orWhere('last_name', 'LIKE', "%$search%");
-            // }
-    
-            // return ProfileResource::collection($this->paginated($query, $request));
             $search = $request->search;
-
-            $query = User::query()
-                ->whereHas('roles', function ($query) {
-                    $query->where('name', 'Customer');
+    
+            $query = Profile::query()
+                ->whereHas('user', function ($query) {
+                    $query->whereHas('roles', function ($query) {
+                        $query->where('name', 'Customer');
+                    });
                 });
-        
+    
             if (!is_null($search)) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('first_name', 'LIKE', "%$search%")
-                          ->orWhere('last_name', 'LIKE', "%$search%");
-                });
+                $query->where('first_name', 'LIKE', "%$search%")->orWhere('last_name', 'LIKE', "%$search%");
             }
-        
+    
             return ProfileResource::collection($this->paginated($query, $request));
+            // $search = $request->search;
+
+            // $query = User::query()
+            //     ->whereHas('roles', function ($query) {
+            //         $query->where('name', 'Customer');
+            //     });
+        
+            // if (!is_null($search)) {
+            //     $query->where(function ($query) use ($search) {
+            //         $query->where('first_name', 'LIKE', "%$search%")
+            //               ->orWhere('last_name', 'LIKE', "%$search%");
+            //     });
+            // }
+        
+            // return ProfileResource::collection($this->paginated($query, $request));
     
     }
     public function store(Request $request)
