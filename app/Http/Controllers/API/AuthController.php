@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
+use Exception;
+use App\Models\User;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Profile;
-use App\Models\User;
-use Exception;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\ProfileResource;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -75,17 +77,14 @@ class AuthController extends Controller
         }
     }
 
-    public function getCustomers(){
-        $customers = User::with('profile')->where('role','Customer')->get();
-        return $customers;
-    }
-
-    // public function updateCustomers(Request $request, $id)
-    // {
-    //     $customers = User::find($id);
-    //     $customers->first_name = $request('first_name');
-    //     $customers->save();
-
-
+    // public function getCustomers(Request $request){
+    //     $customers = User::with('profile')->where('role','Customer')->get();
+    //     return $customers;
     // }
+
+    public function destroy($id)    
+    {
+        $data = User::where('id', $id)->firstorfail()->delete();
+        return UserResource::collection($data);
+    }
 }

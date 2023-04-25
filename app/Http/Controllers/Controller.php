@@ -10,4 +10,9 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    public function paginated($query, $request){
+        $limit = $request->limit ? $request->limit: 25;
+        return $query->paginate($limit);
+    }
 }

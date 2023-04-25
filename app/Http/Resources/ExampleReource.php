@@ -2,11 +2,9 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Profile;
-use App\Http\Resources\ProfileResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class ExampleReource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,12 +14,6 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-        $profile = Profile::where('user_id', $this->id)->first();
-        return [
-            'id' => $this->id,
-            'email' => $this->email,
-            'role' => $this->role,
-            'profile' => $profile,
-        ];
+        return parent::toArray($request);
     }
 }
