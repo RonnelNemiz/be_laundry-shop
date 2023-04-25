@@ -23,7 +23,7 @@ class CreateProfilesTable extends Migration
             $table->string('brgy');
             $table->string('municipality');
             $table->string('contact_number');
-            $table->string('land_mark');
+            $table->string('land_mark')->nullable();
             $table->timestamps();
         });
     }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Profile extends Model
 {
     use HasFactory;
-    protected $fillable=[
+    protected $fillable = [
         'user_id',
         'first_name',
         'last_name',
@@ -19,10 +19,22 @@ class Profile extends Model
         'contact_number',
         'land_mark',
     ];
-    public function user(){
+
+    protected $appends = [
+        'address',
+    ];
+
+    public function getAddressAttribute()
+    {
+        return implode(' ', [$this->purok, $this->brgy, $this->municipality]);
+    }
+
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
-    public function orders(){
+    public function orders()
+    {
         return $this->hasMany(Order::class);
     }
 }
