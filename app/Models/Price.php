@@ -9,9 +9,14 @@ class Price extends Model
 {
     use HasFactory;
     protected $fillable=[
-        'value',
+        'price_id',
+        'price_value',
     ];
-    public function service(){
-        return $this->hasOne(Service::class);
+    // public function service(){
+    //     return $this->hasOne(Service::class);
+    // }
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
     }
 }

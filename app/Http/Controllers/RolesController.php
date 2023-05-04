@@ -10,9 +10,10 @@ class RolesController extends Controller
 {
     public function show()
     {
+        $roles = Role::where('name', '!=', 'Customer')->get();
 
         return response()->json([
-            'roles' => Role::all(),
+            'roles' => $roles,
         ]);
     }
 }

@@ -15,8 +15,6 @@ class ProfileResource extends JsonResource
      */
     public function toArray($request)
     {
-        $user = User::where('id', $this->user_id)->first();
-
         return [
             'user_id' => $this->user_id,
             'address' => $this->address,
@@ -28,7 +26,6 @@ class ProfileResource extends JsonResource
             'municipality' => $this->municipality,
             'contact_number' => $this->contact_number,
             'land_mark' => $this->land_mark,
-            'user' => $user,
         ];
     }
 }
