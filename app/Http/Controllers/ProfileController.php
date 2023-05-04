@@ -12,34 +12,25 @@ class ProfileController extends Controller
 {
     public function editProfile(Profile $profile, Request $request)
     {
-
         $profile->update([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'purok' => $request->purok,
             'brgy' => $request->brgy,
-            'land_mark' => $request->land_mark,
+            'land_mark' => 'leyte',
             'municipality' => $request->municipality,
             'contact_number' => $request->contact_number,
         ]);
-
-        $user = User::find($profile->user_id);
+        $user = $profile->user;
 
         $user->update([
             'email' => $request->email,
-            'password'  => Hash::make($request->password),
+            'role' => 'Customer',
         ]);
-
-        return response()->json([
-            'status' => 200,
-            'message' => "Sucessfully Updated!"
-        ]);
-    }
-
-    public function destroy($id)
-    {
-        $profile = Profile::find($id);
-        $profile->delete();
-        return response()->json([200, "Successfully Deleted!" ]);
-    }
+    
+            return response()->json([
+                'status' => 200,
+                'message' => "Sucessfully Updated!"
+            ]);
+        }
 }

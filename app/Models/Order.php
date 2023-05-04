@@ -14,6 +14,7 @@ class Order extends Model
         'service_id',
         'payment_id',
         'price_id',
+        'status',
     ];
     public function order(){
         return $this->belongsTo(Profile::class);

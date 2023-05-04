@@ -9,12 +9,14 @@ class Service extends Model
 {
     use HasFactory;
     protected $fillable=[
-        'price_id',
         'name',
         'description',
         'image',
     ];
+    // public function price(){
+    //     return $this->belongsTo(Price::class);
+    // }
     public function price(){
-        return $this->belongsTo(Price::class);
+        return $this->hasOne(Price::class);
     }
 }
