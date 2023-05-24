@@ -45,6 +45,6 @@ class Order extends Model
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'category_user', 'order_id', 'category_id')
-            ->withPivot('order_id', 'quantity', 'kilo');
+        ->withPivot('order_id', 'quantity', 'kilo');
     }
 }

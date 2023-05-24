@@ -34,6 +34,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('add/customer', [UserController::class, 'addCustomer']);
     Route::put('update/customer/{user}', [UserController::class, 'editCustomer']);
 
+    Route::get('all-users', [UserController::class, 'getAllUsers']);
+
     Route::get('handlings', [HandlingController::class, 'index']);
     Route::get('show/handlings', [HandlingController::class, 'show']);
     Route::get('view/handlings/{handling}', [HandlingController::class, 'view']);
@@ -57,7 +59,9 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('new/orders', [OrderController::class, 'orders']);
     Route::get('orders', [OrderController::class, 'index']);
-    Route::get('show/orders', [OrderController::class, 'view']);
+    Route::get('show/orders/{id}', [OrderController::class, 'view']);
+    Route::put('update/orders/{id}', [PaymentController::class, 'manualOrder']);
+    Route::delete('delete/orders/{order}', [PaymentController::class, 'destroy']);
 
     Route::get('reviews', [ReviewController::class, 'index']);
     Route::get('show/reviews', [ReviewController::class, 'show']);
