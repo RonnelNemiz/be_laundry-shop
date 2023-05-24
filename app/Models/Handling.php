@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Payment extends Model
+class Handling extends Model
 {
     use HasFactory;
-    protected $fillable=[
-        'payment_name',
-    ];
+    protected $fillable = [
+        'handling_name',
+        'handling_price',
+    ]; 
 }

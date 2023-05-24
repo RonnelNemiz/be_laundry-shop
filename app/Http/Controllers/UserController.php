@@ -8,10 +8,13 @@ use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\ProfileResource;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    public function show(Request $request)
+
+
+    public function index(Request $request)
     {
         $search = $request->search;
 
@@ -22,19 +25,24 @@ class UserController extends Controller
         return UserResource::collection($this->paginated($query, $request));
     }
 
-    public function store(Request $request)
-    {
-        $user = User::where('email', $request->email)->first();
 
 
-        if (empty($user)) {
-            $newUser = User::create([
-                "email" => $request->email,
-                "password" => $request->password,
-                "role" => $request->role,
-            ]);
+public function store(Request $request)
+{
+    $user = User::where('email', $request->email)->first();
 
-            Profile::create([
+    if (empty($user)) {
+        $newUser = User::create([
+            "email" => $request->email,
+            "password" => Hash::make($request->password),
+            "role" => $request->role,
+        ]);
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('public/images');
+            $imageUrl = Storage::url($imagePath);
+
+            $profile = Profile::create([
                 'user_id' => $newUser->id,
                 "first_name" => $request->first_name,
                 "last_name" => $request->last_name,
@@ -43,19 +51,34 @@ class UserController extends Controller
                 "municipality" => $request->municipality,
                 "land_mark" => "Leyte",
                 "contact_number" => $request->contact_number,
+                "image" => $imageUrl,
             ]);
-
-            return response()->json([
-                'status' => 200,
-                'message' => "Sucessfully Added!"
+        } else {
+            $profile = Profile::create([
+                'user_id' => $newUser->id,
+                "first_name" => $request->first_name,
+                "last_name" => $request->last_name,
+                "purok" => $request->purok,
+                "brgy" => $request->brgy,
+                "municipality" => $request->municipality,
+                "land_mark" => "Leyte",
+                "contact_number" => $request->contact_number,
+                "image" => "",
             ]);
-        };
+        }
 
         return response()->json([
-            'status' => 500,
-            'message' => "email is taken!"
+            'status' => 200,
+            'message' => "Successfully Added!",
         ]);
     }
+
+    return response()->json([
+        'status' => 500,
+        'message' => "Email is taken!",
+    ]);
+}
+
 
     public function editUser(User $user, Request $request)
     {
@@ -75,6 +98,7 @@ class UserController extends Controller
             'land_mark' => $request->land_mark,
             'municipality' => $request->municipality,
             'contact_number' => $request->contact_number,
+          
         ]);
 
         return response()->json([
@@ -87,8 +111,6 @@ class UserController extends Controller
 
     public function getCustomers(Request $request)
     {
-
-
         $search = $request->search;
         // $query = Profile::query()
         //     ->whereHas('user', function ($query) {
@@ -129,6 +151,7 @@ class UserController extends Controller
                 "municipality" => $request->municipality,
                 "land_mark" =>  $request->land_mark ,
                 "contact_number" => $request->contact_number,
+              
             ]);
 
             return response()->json([
@@ -142,6 +165,40 @@ class UserController extends Controller
             'message' => "email is taken!"
         ]);
     }
+
+//     public function showCustomer(User $user)
+// {
+//     return new UserResource($user);
+// }
+// public function showCustomer($id)
+// {
+//     $user = User::findOrFail($id);
+
+//     if(!$user) {
+//         return response()->json([
+//             'message' => 'Not Found',
+//         ], 500);
+//     }
+
+//     return new UserResource($user, 200);
+// }
+public function showCustomer($id)
+{
+    $user = User::findOrFail($id);
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'Not Found',
+        ], 500);
+    }
+
+    $profile = $user->profile;
+
+    // Append the image URL to the profile object
+    $profile->image_url = Storage::url($profile->image);
+
+    return new UserResource($user);
+}
 
     public function destroy(User $user)
     {
