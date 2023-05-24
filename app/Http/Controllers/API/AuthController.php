@@ -30,7 +30,7 @@ class AuthController extends Controller
             'password' => 'required|min:8',
         ]);
 
-        if($validated){
+        if ($validated) {
             $user = User::create([
                 'email' => $request->email,
                 'role' => $request->role,
@@ -51,9 +51,8 @@ class AuthController extends Controller
                 'code' => 200,
                 'message' => 'success'
             ]);
-        }
-        else{
-            abort(402,'Failed to create');
+        } else {
+            abort(402, 'Failed to create');
         }
     }
 
@@ -65,12 +64,13 @@ class AuthController extends Controller
         ]);
         if (auth()->attempt($request->only(['email', 'password']))) {
             $user = auth()->user();
-            $data = $user->createToken(env('APP_URL'))->accessToken;
+            $token = $user->createToken(env('APP_URL'))->accessToken;
 
             return response()->json([
                 'code' => 200,
-                'access_token' => $data,
-                'user' => $user
+                'access_token' => $token,
+                'user' => $user,
+                'role' => $user->role
             ]);
         } else {
             abort(422, 'Invalid Credentials');
@@ -82,7 +82,7 @@ class AuthController extends Controller
     //     return $customers;
     // }
 
-    public function destroy($id)    
+    public function destroy($id)
     {
         $data = User::where('id', $id)->firstorfail()->delete();
         return UserResource::collection($data);

@@ -15,11 +15,14 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('profile_id');
-            $table->foreignId('service_id');
+            $table->foreignId('user_id');
             $table->foreignId('payment_id');
-            $table->foreignId('price_id');
-            $table->string('status');
+            $table->foreignId('handling_id');
+            $table->string('trans_number');
+            $table->string('status')->default('pending');
+            $table->string('payment_status')->default('unpaid');
+            $table->string('total')->nullable();
+            $table->string('approved_by')->nullable();
             $table->timestamps();
         });
     }

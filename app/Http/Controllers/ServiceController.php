@@ -10,77 +10,68 @@ use App\Models\Price;
 
 class ServiceController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Service::query();
-        $query->orderBy('id', 'desc');
-        return ServiceResource::collection($this->paginated($query, $request));
-       
+        $services = Service::all();
+        return $services;
     }
-
+   
     public function store(Request $request)
     {
+        $validatedData = $request->validate([
+            'service_name' => 'required|max:50',
+            'description' => 'required|max:255',
+            'image' => '',
+        ]);
 
-        $service = Service::where('name', $request->name)->first();
-
-
-        if (empty($service)) {
-             
-            $newService = Service::create([
-                
-                "name" => $request->name,
-                "description" => $request->description,
-                "image" => $request->image,
-            ]);
-            Price::create([
-                'price_id' =>  $newService->id,
-                "price_value" => $request->price_value,
-            ]);
-
-
-            return response()->json([
-                'status' => 200,
-                'message' => "Sucessfully Added!"
-            ]);
-        };
+        $service = Service::create($validatedData);
 
         return response()->json([
-            'status' => 500,
-            'message' => "name is taken!"
-        ]);
-    }
-   
-    // public function edit(Request $id)
-    //     {
-    //         $service = Service::findOrFail($id);
-    //         return view('services.edit', compact('service'));
-    //     }
-    public function update(Service $service, Request $request)
-    {
-        $service->update([
-            
-            'name' => $request->name,
-            'description' => $request->description,
-            'image' => $request->image,
-        ]);
-
-        $price = $service->price;
-
-        $price->update([
-            'price_value' => $request->price_value,
-        ]);
-
-        return response()->json([
+            $service,
             'status' => 200,
-            'message' => "Sucessfully Updated!"
         ]);
     }
-   
-        public function destroy(Service $service)
-        {
-            $service->price->delete();
-            $service->delete();
-            return response()->json([200, "Successfully Deleted!"]);
-        }
+    public function show()
+    {
+        $services = Service::get();
+    
+        return response()->json($services);
+    }
 
-}
+    public function view($id)
+    {
+        $service = Service::find($id);
+
+        if(!$service) {
+            return response()->json([
+                'message' => 'Service Not Found',
+            ], 500);
+        }
+        return response()->json($service, 200);
+    }
+
+    public function update(Request $request, Service $service)
+    {
+        $validatedData = $request->validate([
+            'service_name' => 'required|string|max:50',
+            'description' => 'required|string|max:255',
+            'image' => '',
+        ]);
+    
+        $service->update($validatedData);
+    
+        return response()->json([
+            'message' => 'Handling data updated successfully',
+            'data' => $service
+        ], 200);
+    }
+    
+    public function destroy(Service $service)
+    {
+        $service->delete();
+
+        return response()->json([200, "Successfully Deleted!"]);
+    }
+
+ }
+
