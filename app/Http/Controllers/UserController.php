@@ -25,6 +25,13 @@ class UserController extends Controller
         return UserResource::collection($this->paginated($query, $request));
     }
 
+    public function getAllUsers(Request $request)
+    {
+        $query = User::query();
+        $query->where('role', '!=', 'Administrator');
+        $query->orderBy('id', 'desc');
+        return UserResource::collection($this->paginated($query, $request));
+    }
 
 
 public function store(Request $request)

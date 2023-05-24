@@ -18,10 +18,10 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $query = Order::query();
-        return $query->has('categories')->with('categories.category.parent')->get();
-
-        return OrderResource::collection($this->paginated($query, $request));
+        return $query->has('categories')->with('user.profile')->with('categories.parent')->get();
+        // return OrderResource::collection($this->paginated($query, $request));
     }
+
     public function orders(Request $request)
     {
         DB::beginTransaction();
@@ -88,4 +88,48 @@ class OrderController extends Controller
 
         return response()->json($order, 200);
     }
+
+    public function manualOrder(Request $request){
+        DB::beginTransaction();
+        try {
+            $order = Order::find($id);
+            if (!$order) {
+                throw new Exception('Order not found');
+            }
+    
+            // Update the order fields based on the request data
+            $order->payment_status = $request->input('payment_status');
+            $order->status = $request->input('status');
+            $order->total = $request->input('total');
+            $order->approved_by = $request->input('approved_by');
+            
+            // Save the changes to the order
+        $order->save();
+
+        // Update the categories and their quantities if provided
+        $categories = $request->input('categories', []);
+        foreach ($categories as $categoryId => $quantity) {
+            $category = Category::find($categoryId);
+            if ($category) {
+                // Update the quantity in the pivot table
+                $order->categories()->updateExistingPivot($category->id, [
+                    'quantity' => $quantity,
+                ]);
+            }
+        }
+
+        DB::commit();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Order successfully updated!',
+        ]);
+    } catch (Exception $e) {
+        DB::rollback();
+        return response()->json([
+            'status' => 500,
+            'message' => $e->getMessage(),
+        ]);
+    }
+    }
+   
 }
