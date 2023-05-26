@@ -47,4 +47,23 @@ class Order extends Model
         return $this->belongsToMany(Category::class, 'category_user', 'order_id', 'category_id')
         ->withPivot('order_id', 'quantity', 'kilo');
     }
+
+    public function updateStatus($newStatus)
+    {
+        if ($newStatus === 'in progress' && $this->status === 'pending') {
+            $this->status = 'in progress';
+            $this->save();
+        } elseif ($newStatus === 'completed' && $this->status === 'in progress') {
+            $this->status = 'completed';
+            $this->save();
+        }
+    }
+    public function updatePaymentStatus($newPaymentStatus)
+    {
+        if ($newPaymentStatus === 'paid' && $this->payment_status === 'unpaid') {
+            $this->payment_status = 'paid';
+            $this->save();
+        }
+    }
+  
 }

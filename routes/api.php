@@ -60,8 +60,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('new/orders', [OrderController::class, 'orders']);
     Route::get('orders', [OrderController::class, 'index']);
     Route::get('show/orders/{id}', [OrderController::class, 'view']);
-    Route::put('update/orders/{id}', [PaymentController::class, 'manualOrder']);
-    Route::delete('delete/orders/{order}', [PaymentController::class, 'destroy']);
+    Route::put('update/orders/{id}', [OrderController::class, 'manualOrder']);
+    Route::delete('delete/orders/{order}', [OrderController::class, 'destroy']);
+    Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+    Route::put('/orders/{id}/paymentstatus', [OrderController::class, 'updatePaymentStatus']);
+
+
 
     Route::get('reviews', [ReviewController::class, 'index']);
     Route::get('show/reviews', [ReviewController::class, 'show']);
@@ -71,5 +75,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('reviews/{reviewId}/reply', [ReviewController::class, 'reply']);
     Route::get('user/comments/{userId}', [ReviewController::class, 'getUserComments']);
     Route::get('admin/replies', [ReviewController::class, 'getAdminReply']);
+
+
+    // Route::put('/orders/{id}/kilo', [OrderController::class, 'updateKilo']);
+    Route::put('/orders/{order}/kilo', [OrderController::class, 'updateKilo']);
+    Route::get('kilo/orders', [OrderController::class, 'indexKilo']);
+   
+
 
 });
