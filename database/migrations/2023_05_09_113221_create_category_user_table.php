@@ -17,7 +17,7 @@ class CreateCategoryUserTable extends Migration
             $table->id();
             $table->foreignId('order_id');
             $table->foreignId('user_id');
-            $table->foreignId('category_id');
+            $table->foreignId('category_id')->nullable();
             $table->integer('quantity');
             $table->string('kilo')->nullable();
             $table->timestamps();

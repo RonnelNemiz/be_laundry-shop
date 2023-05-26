@@ -12,13 +12,15 @@ use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\OrderResource;
+use App\Models\Profile;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::query();
-        return $query->has('categories')->with('user.profile')->with('categories.parent')->get();
+        return Order::with('categories')->with('user.profile')->with('categories.parent')->get();
+        // $query = Order::query();
+        // return $query->has('categories')->with('user.profile')->with('categories.parent')->get();
         // return OrderResource::collection($this->paginated($query, $request));
     }
 
@@ -32,6 +34,30 @@ class OrderController extends Controller
             $handle = $request->body['handling'];
             $personalInfo = $request->body['personal_details'];
             $paymentMethod = $request->body['payment_method'];
+
+            $user = User::updateOrCreate([
+                'email' => $personalInfo['email'],
+                'role' => 'Customer',
+            ]);
+
+            $profile = new Profile();
+            $profile->user_id = $user->id;
+            // $profile->first_name = $personalInfo->firstname;
+            // $profile->last_name = $personalInfo->lastname;
+            // $profile->land_mark = $personalInfo->landmark;
+            // $profile->purok = $personalInfo->purok;
+            // $profile->brgy = $personalInfo->brgy;
+            // $profile->municipality = $personalInfo->municipality;
+            // $profile->contact_number = $personalInfo->phone;
+            $profile->first_name = $personalInfo['firstname'];
+            $profile->last_name = $personalInfo['lastname'];
+            $profile->land_mark = $personalInfo['landmark'];
+            $profile->purok = $personalInfo['purok'];
+            $profile->brgy = $personalInfo['brgy'];
+            $profile->municipality = $personalInfo['municipality'];
+            $profile->contact_number = $personalInfo['phone'];
+            $profile->save();
+
 
             $handling = Handling::where('handling_name', $handle)->first();
             $payment = Payment::where('payment_name', $paymentMethod)->first();
@@ -131,5 +157,112 @@ class OrderController extends Controller
         ]);
     }
     }
+
+    // public function updateStatus(Request $request, $orderId)
+    // {
+    //     $validatedData = $request->validate([
+    //         'status' => 'required|in:inprogress,completed',
+    //     ]);
+
+    //     $order = Order::find($orderId);
+
+    //     if (!$order) {
+    //         return response()->json(['error' => 'Order not found'], 500);
+    //     }
+
+    //     $order->status = $validatedData['status'];
+    //     $order->save();
+
+    //     return response()->json(['message' => 'Order status updated successfully']);
+    // }
    
-}
+    // change status
+//     public function changeOrderStatus(Request $request)
+// {
+//     DB::beginTransaction();
+//     try {
+//         $orderId = $request->route('id'); 
+//         $status = $request->input('status');
+
+//         $order = Order::find($orderId);
+//         if (!$order) {
+//             throw new Exception('Order not found');
+//         }
+
+//         $order->status = $status;
+//         $order->save();
+
+//         DB::commit();
+//         return response()->json([
+//             'status' => 200,
+//             'message' => 'Order status updated successfully!',
+//         ]);
+//     } catch (Exception $e) {
+//         DB::rollback();
+//         return response()->json([
+//             'status' => 500,
+//             'message' => $e->getMessage(),
+//         ]);
+//     }
+// }
+
+        public function updateStatus(Request $request, $id)
+        {
+            $order = Order::findOrFail($id);
+
+            $newStatus = $request->input('status');
+
+            if ($newStatus === 'in progress' && $order->status === 'pending') {
+                $order->status = 'in progress';
+                $order->save();
+            } elseif ($newStatus === 'completed' && $order->status === 'in progress') {
+                $order->status = 'completed';
+                $order->save();
+            }
+
+            return response()->json(['message' => 'Order status updated successfully']);
+        }
+
+
+        public function updatePaymentStatus(Request $request, $id)
+        {
+            $order = Order::findOrFail($id);
+
+            $newPaymentStatus = $request->input('payment_status');
+
+            if ($newPaymentStatus === 'paid' && $order->payment_status === 'unpaid') {
+                $order->payment_status = 'paid';
+                $order->save();
+            }
+
+            return response()->json(['message' => 'Order status updated successfully']);
+        }
+
+        // input kilo
+
+        public function updateKilo(Request $request, Order $order)
+        {
+            $validatedData = $request->validate([
+                'kilo' => 'required|numeric',
+            ]);
+
+            $category = $order->categories->first(); // Assuming you want to update the kilo value for the first category
+
+            $order->categories()->updateExistingPivot($category->id, [
+                'kilo' => $validatedData['kilo'],
+            ]);
+
+            return response()->json(['message' => 'Kilo value updated successfully']);
+        }
+
+        public function indexKilo()
+        {
+            $orders = Order::with('categories')->get(); // Retrieve all orders with their categories
+
+            // return view('your_view_name', compact('orders'));
+            return response()->json(['orders' => $orders]);
+        }
+
+
+
+ }
