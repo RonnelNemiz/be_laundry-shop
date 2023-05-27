@@ -233,6 +233,7 @@ class OrderController extends Controller
             $newPaymentStatus = $request->input('payment_status');
 
             if ($newPaymentStatus === 'paid' && $order->payment_status === 'unpaid') {
+            $order->status = 'completed';
                 $order->payment_status = 'paid';
             $order->approved_by = $profile ? ($profile->first_name . ' ' . $profile->last_name) : "Admin Admin";
                 $order->save();
