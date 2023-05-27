@@ -122,13 +122,13 @@ class OrderController extends Controller
             if (!$order) {
                 throw new Exception('Order not found');
             }
-    
+
             // Update the order fields based on the request data
             $order->payment_status = $request->input('payment_status');
             $order->status = $request->input('status');
             $order->total = $request->input('total');
             $order->approved_by = $request->input('approved_by');
-            
+
             // Save the changes to the order
         $order->save();
 
@@ -175,13 +175,13 @@ class OrderController extends Controller
 
     //     return response()->json(['message' => 'Order status updated successfully']);
     // }
-   
+
     // change status
 //     public function changeOrderStatus(Request $request)
 // {
 //     DB::beginTransaction();
 //     try {
-//         $orderId = $request->route('id'); 
+//         $orderId = $request->route('id');
 //         $status = $request->input('status');
 
 //         $order = Order::find($orderId);
@@ -227,11 +227,14 @@ class OrderController extends Controller
         public function updatePaymentStatus(Request $request, $id)
         {
             $order = Order::findOrFail($id);
+        $id = auth()->user();
+        $profile = Profile::where('user_id', $id->id)->first();
 
             $newPaymentStatus = $request->input('payment_status');
 
             if ($newPaymentStatus === 'paid' && $order->payment_status === 'unpaid') {
                 $order->payment_status = 'paid';
+            $order->approved_by = $profile ? ($profile->first_name . ' ' . $profile->last_name) : "Admin Admin";
                 $order->save();
             }
 
