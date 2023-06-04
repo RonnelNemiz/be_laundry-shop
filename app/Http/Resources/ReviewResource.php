@@ -24,8 +24,8 @@ class ReviewResource extends JsonResource
             'reply_at' => $this->reply_at,
             'user' => [
                 'id' => $this->user->id,
-                'first_name' => $this->user->profile->first_name, // Include the first name
-                'last_name' => $this->user->profile->last_name, // Include the last name
+                'first_name' => $this->user->profile ? $this->user->profile->first_name : null,
+                'last_name' => $this->user->profile ? $this->user->profile->last_name : null,
             ],
         ];
     }

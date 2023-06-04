@@ -10,8 +10,17 @@ class Service extends Model
     use HasFactory;
     protected $fillable=[
         'service_name',
+        'service_price',
         'description',
         'image',
     ];
-  
+
+    public function getImageAttribute($value)
+    {
+        if ($value) {
+            return asset('storage/' . $value);
+        }
+        return null;
+    }
+    
 }

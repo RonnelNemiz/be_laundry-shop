@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateServicesTable extends Migration
+class CreateFabconsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateServicesTable extends Migration
      */
     public function up()
     {
-        Schema::create('services', function (Blueprint $table) {
+        Schema::create('fabcons', function (Blueprint $table) {
             $table->id();
-            $table->string('service_name');
-            $table->string('description')->nullable();
-            $table->integer('service_price')->nullable();
+            $table->string( 'fabcon_name');
+            $table->integer('fabcon_price')->nullable();
+            $table->integer('fabcon_scoop')->nullable();
             $table->string('image')->nullable();
             $table->timestamps();
         });
@@ -30,6 +30,6 @@ class CreateServicesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('services');
+        Schema::dropIfExists('fabcons');
     }
 }

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\FabconController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HandlingController;
+use App\Http\Controllers\DetergentController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -57,6 +59,20 @@ Route::middleware('auth:api')->group(function () {
     Route::put('update/payments/{payment}', [PaymentController::class, 'update']);
     Route::delete('delete/payments/{payment}', [PaymentController::class, 'destroy']);
 
+    Route::get('fabcons', [FabconController::class, 'index']);
+    Route::get('show/fabcons', [FabconController::class, 'show']);
+    Route::get('view/fabcons/{fabcon}', [FabconController::class, 'view']);
+    Route::post('add/fabcons', [FabconController::class, 'store']);
+    Route::put('update/fabcons/{fabcon}', [FabconController::class, 'update']);
+    Route::delete('delete/fabcons/{fabcon}', [FabconController::class, 'destroy']);
+
+    Route::get('detergents', [DetergentController::class, 'index']);
+    Route::get('show/detergents', [DetergentController::class, 'show']);
+    Route::get('view/detergents/{detergent}', [DetergentController::class, 'view']);
+    Route::post('add/detergents', [DetergentController::class, 'store']);
+    Route::put('update/detergents/{detergent}', [DetergentController::class, 'update']);
+    Route::delete('delete/detergents/{detergent}', [DetergentController::class, 'destroy']);
+
     Route::post('new/orders', [OrderController::class, 'orders']);
     Route::get('orders', [OrderController::class, 'index']);
     Route::get('show/orders/{id}', [OrderController::class, 'view']);
@@ -64,8 +80,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('delete/orders/{order}', [OrderController::class, 'destroy']);
     Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     Route::put('/orders/{id}/paymentstatus', [OrderController::class, 'updatePaymentStatus']);
-
-
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
     Route::get('reviews', [ReviewController::class, 'index']);
     Route::get('show/reviews', [ReviewController::class, 'show']);
@@ -76,11 +91,21 @@ Route::middleware('auth:api')->group(function () {
     Route::get('user/comments/{userId}', [ReviewController::class, 'getUserComments']);
     Route::get('admin/replies', [ReviewController::class, 'getAdminReply']);
 
-
-    // Route::put('/orders/{id}/kilo', [OrderController::class, 'updateKilo']);
     Route::put('/orders/{order}/kilo', [OrderController::class, 'updateKilo']);
-    Route::get('kilo/orders', [OrderController::class, 'indexKilo']);
-   
+    // Route::get('kilo/orders', [OrderController::class, 'indexKilo']);
+    // Route::put('/orders/{order}/total', [OrderController::class, 'updateTotal']);
+    Route::put('/orders/{id}/total', [OrderController::class, 'updateTotal']);
+    Route::put('/orders/{id}/amount', [OrderController::class, 'updateAmount']);
+    Route::put('/orders/{id}/change', [OrderController::class, 'updateChange']);
+    Route::put('/orders/{id}/ref_num', [OrderController::class, 'updateRefNum']);
+    // Route::put('/orders/{id}/fabcon_id', [OrderController::class, 'updateFabcon']);
+    Route::put('/orders/{id}/update-fabcon', [OrderController::class, 'updateFabcon']);
+
+
+
+
+
+
 
 
 });

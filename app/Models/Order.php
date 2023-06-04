@@ -14,10 +14,16 @@ class Order extends Model
         'user_id',
         'payment_id',
         'handling_id',
+        'service_id',
+        'fabcon_id',
+        'detergent_id',
         'trans_number',
         'payment_status',
         'status',
         'total',
+        'ref_num',
+        'change',
+        'amount',
         'approved_by',
         'created_at',
     ];
@@ -37,6 +43,18 @@ class Order extends Model
     public function handlings()
     {
         return $this->belongsToMany(Handling::class);
+    }
+    public function fabcons()
+    {
+        return $this->belongsToMany(Fabcon::class);
+    }
+    public function detergents()
+    {
+        return $this->belongsToMany(Detergent::class);
+    }
+    public function services()
+    {
+        return $this->belongsToMany(Service::class);
     }
     public function user()
     {

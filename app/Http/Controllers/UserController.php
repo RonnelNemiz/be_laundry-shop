@@ -173,22 +173,6 @@ public function store(Request $request)
         ]);
     }
 
-//     public function showCustomer(User $user)
-// {
-//     return new UserResource($user);
-// }
-// public function showCustomer($id)
-// {
-//     $user = User::findOrFail($id);
-
-//     if(!$user) {
-//         return response()->json([
-//             'message' => 'Not Found',
-//         ], 500);
-//     }
-
-//     return new UserResource($user, 200);
-// }
 public function showCustomer($id)
 {
     $user = User::findOrFail($id);
