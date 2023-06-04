@@ -12,9 +12,7 @@ class Price extends Model
         'price_id',
         'price_value',
     ];
-    // public function service(){
-    //     return $this->hasOne(Service::class);
-    // }
+
     public function service()
     {
         return $this->belongsTo(Service::class);

@@ -13,15 +13,19 @@ use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\OrderResource;
 use App\Models\Profile;
+use App\Models\Service;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        return Order::with('categories')->with('user.profile')->with('categories.parent')->get();
-        // $query = Order::query();
-        // return $query->has('categories')->with('user.profile')->with('categories.parent')->get();
-        // return OrderResource::collection($this->paginated($query, $request));
+        // return Order::with('categories')->with('user.profile')->with('categories.parent')->get();
+        $query = Order::query();
+        return $query->has('categories')->with('user.profile')->with('categories.parent')->get();
+        return OrderResource::collection($this->paginated($query, $request));
     }
 
     public function orders(Request $request)
@@ -32,8 +36,10 @@ class OrderController extends Controller
             $categories = $request->body['garments'];
 
             $handle = $request->body['handling'];
+            $serbesyo = $request->body['service'];
             $personalInfo = $request->body['personal_details'];
             $paymentMethod = $request->body['payment_method'];
+
 
             $user = User::updateOrCreate([
                 'email' => $personalInfo['email'],
@@ -42,13 +48,6 @@ class OrderController extends Controller
 
             $profile = new Profile();
             $profile->user_id = $user->id;
-            // $profile->first_name = $personalInfo->firstname;
-            // $profile->last_name = $personalInfo->lastname;
-            // $profile->land_mark = $personalInfo->landmark;
-            // $profile->purok = $personalInfo->purok;
-            // $profile->brgy = $personalInfo->brgy;
-            // $profile->municipality = $personalInfo->municipality;
-            // $profile->contact_number = $personalInfo->phone;
             $profile->first_name = $personalInfo['firstname'];
             $profile->last_name = $personalInfo['lastname'];
             $profile->land_mark = $personalInfo['landmark'];
@@ -60,7 +59,10 @@ class OrderController extends Controller
 
 
             $handling = Handling::where('handling_name', $handle)->first();
+            // $servicing = Service::where('service_name', $serbesyo)->first();
             $payment = Payment::where('payment_name', $paymentMethod)->first();
+
+            $service = Service::where('service_name', $serbesyo)->first();
 
             $transNumber = Order::generateTransactionNumber();
             $newOrder = Order::create([
@@ -68,11 +70,7 @@ class OrderController extends Controller
                 'payment_id' => $payment->id,
                 'handling_id' => $handling->id,
                 'trans_number' => $transNumber,
-                // 'payment_status' => $payment_status,
-                // 'status' => $status,
-                // 'total' => $total,
-                // 'approved_by' => $approved_by,
-                // 'created_at' => $created_at,
+                'service_id' => $service->id,
             ]);
 
             foreach ($categories as $key => $value) {
@@ -127,6 +125,11 @@ class OrderController extends Controller
             $order->payment_status = $request->input('payment_status');
             $order->status = $request->input('status');
             $order->total = $request->input('total');
+            $order->ref_num = $request->input('ref_num');
+            $order->change = $request->input('change');
+            $order->amount= $request->input('amount');
+            $order->fabcon = $request->input('fabcon');
+            $order->detergent= $request->input('detergent');
             $order->approved_by = $request->input('approved_by');
 
             // Save the changes to the order
@@ -145,10 +148,11 @@ class OrderController extends Controller
         }
 
         DB::commit();
-        return response()->json([
-            'status' => 200,
-            'message' => 'Order successfully updated!',
-        ]);
+        // return response()->json([
+        //     'status' => 200,
+        //     'message' => 'Order successfully updated!',
+        // ]);
+        return new OrderResource($newOrder); 
     } catch (Exception $e) {
         DB::rollback();
         return response()->json([
@@ -157,54 +161,6 @@ class OrderController extends Controller
         ]);
     }
     }
-
-    // public function updateStatus(Request $request, $orderId)
-    // {
-    //     $validatedData = $request->validate([
-    //         'status' => 'required|in:inprogress,completed',
-    //     ]);
-
-    //     $order = Order::find($orderId);
-
-    //     if (!$order) {
-    //         return response()->json(['error' => 'Order not found'], 500);
-    //     }
-
-    //     $order->status = $validatedData['status'];
-    //     $order->save();
-
-    //     return response()->json(['message' => 'Order status updated successfully']);
-    // }
-
-    // change status
-//     public function changeOrderStatus(Request $request)
-// {
-//     DB::beginTransaction();
-//     try {
-//         $orderId = $request->route('id');
-//         $status = $request->input('status');
-
-//         $order = Order::find($orderId);
-//         if (!$order) {
-//             throw new Exception('Order not found');
-//         }
-
-//         $order->status = $status;
-//         $order->save();
-
-//         DB::commit();
-//         return response()->json([
-//             'status' => 200,
-//             'message' => 'Order status updated successfully!',
-//         ]);
-//     } catch (Exception $e) {
-//         DB::rollback();
-//         return response()->json([
-//             'status' => 500,
-//             'message' => $e->getMessage(),
-//         ]);
-//     }
-// }
 
         public function updateStatus(Request $request, $id)
         {
@@ -218,6 +174,8 @@ class OrderController extends Controller
             } elseif ($newStatus === 'completed' && $order->status === 'in progress') {
                 $order->status = 'completed';
                 $order->save();
+
+               
             }
 
             return response()->json(['message' => 'Order status updated successfully']);
@@ -233,40 +191,135 @@ class OrderController extends Controller
             $newPaymentStatus = $request->input('payment_status');
 
             if ($newPaymentStatus === 'paid' && $order->payment_status === 'unpaid') {
-            $order->status = 'completed';
+            // $order->status = 'completed';
                 $order->payment_status = 'paid';
             $order->approved_by = $profile ? ($profile->first_name . ' ' . $profile->last_name) : "Admin Admin";
                 $order->save();
+
+                  // Retrieve the user who made the request
+                  $user = Auth::user()->first_name;
+
+                  // Assign the user's name to the approved_by field
+                  $order->approved_by = $user->first_name;
+                  $order->save();
             }
 
             return response()->json(['message' => 'Order status updated successfully']);
         }
 
         // input kilo
-
-        public function updateKilo(Request $request, Order $order)
+        public function updateKilo(Request $request, $id)
         {
+            $order = Order::findOrFail($id);
+        
+            $newKilo = $request->input('kilo');
+        
+            // Update the kilo in the pivot table for each category
+            foreach ($order->categories as $category) {
+                $order->categories()->updateExistingPivot($category->id, [
+                    'kilo' => $newKilo,
+                ]);
+            }
+        
+            return response()->json(['message' => 'Kilo updated successfully']);
+        }
+
+      
+
+        public function updateTotal(Request $request, $id)
+        {
+            $order = Order::findOrFail($id);
+        
             $validatedData = $request->validate([
-                'kilo' => 'required|numeric',
+                'total' => 'required|numeric',
             ]);
-
-            $category = $order->categories->first(); // Assuming you want to update the kilo value for the first category
-
-            $order->categories()->updateExistingPivot($category->id, [
-                'kilo' => $validatedData['kilo'],
-            ]);
-
-            return response()->json(['message' => 'Kilo value updated successfully']);
+        
+            $order->total = $validatedData['total'];
+            $order->save();
+        
+            return response()->json(['message' => 'Total value updated successfully']);
         }
 
-        public function indexKilo()
+        public function updateAmount(Request $request, $id)
         {
-            $orders = Order::with('categories')->get(); // Retrieve all orders with their categories
-
-            // return view('your_view_name', compact('orders'));
-            return response()->json(['orders' => $orders]);
+            $order = Order::findOrFail($id);
+        
+            $validatedData = $request->validate([
+                'amount' => 'required|numeric',
+            ]);
+        
+            $order->amount = $validatedData['amount'];
+            $order->save();
+        
+            return response()->json(['message' => 'Amount value updated successfully']);
         }
 
+        public function updateChange(Request $request, $id)
+        {
+            $order = Order::findOrFail($id);
+        
+            $validatedData = $request->validate([
+                'change' => 'required|numeric',
+            ]);
+        
+            $order->change = $validatedData['change'];
+            $order->save();
+        
+            return response()->json(['message' => 'Change value updated successfully']);
+        }
 
+        public function updateRefNum(Request $request, $id)
+        {
+            $order = Order::findOrFail($id);
+        
+            $validatedData = $request->validate([
+                'ref_num' => 'required|numeric',
+            ]);
+        
+            $order->ref_num = $validatedData['ref_num'];
+            $order->save();
+        
+            return response()->json(['message' => 'Reference# value updated successfully']);
+        }
+
+        public function updateFabcon(Request $request, $orderId)
+        {
+            $order = Order::findOrFail($orderId);
+            $order->fabcon_id = $request->input('fabcon_id');
+            $order->save();
+        
+            return response()->json(['message' => 'Fabcon updated successfully']);
+        }
+        
+   
+
+        public function destroy($id)
+        {
+            DB::beginTransaction();
+            try {
+                $order = Order::find($id);
+        
+                if (!$order) {
+                    throw new Exception('Order not found');
+                }
+        
+                $order->categories()->detach(); // Remove the category associations
+                $order->delete(); // Delete the order
+        
+                DB::commit();
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Order deleted successfully!',
+                ]);
+            } catch (Exception $e) {
+                DB::rollback();
+                return response()->json([
+                    'status' => 500,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
+        
+        
 
  }

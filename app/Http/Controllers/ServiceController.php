@@ -10,19 +10,38 @@ use App\Models\Price;
 
 class ServiceController extends Controller
 {
+
     public function index()
     {
         $services = Service::all();
+    
+        // Add the image URL to each service
+        $services->each(function ($service) {
+            $service->image_url = $service->image_url;
+        });
+        
+    
         return $services;
     }
-   
+    
     public function store(Request $request)
     {
         $validatedData = $request->validate([
             'service_name' => 'required|max:50',
+            'service_price' => 'required|numeric',
             'description' => 'required|max:255',
             'image' => '',
         ]);
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imagePath = $image->store('images');
+            $validatedData['image'] = $imagePath;
+        
+            // Get the file name and append it to the image URL
+            $validatedData['image_url'] = asset('storage/' . basename($imagePath));
+        }
+        
 
         $service = Service::create($validatedData);
 
@@ -47,6 +66,8 @@ class ServiceController extends Controller
                 'message' => 'Service Not Found',
             ], 500);
         }
+         // Add the image URL to the service
+         $service->image_url = asset('storage/' . $service->image);
         return response()->json($service, 200);
     }
 
@@ -55,8 +76,15 @@ class ServiceController extends Controller
         $validatedData = $request->validate([
             'service_name' => 'required|string|max:50',
             'description' => 'required|string|max:255',
-            'image' => '',
+            'service_price' => 'required|numeric',
+            // 'image' => '',
         ]);
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imagePath = $image->store('images');
+            $validatedData['image'] = $imagePath;
+        }
     
         $service->update($validatedData);
     

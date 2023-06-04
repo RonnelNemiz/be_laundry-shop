@@ -18,10 +18,16 @@ class CreateOrdersTable extends Migration
             $table->foreignId('user_id');
             $table->foreignId('payment_id');
             $table->foreignId('handling_id');
+            $table->foreignId('service_id');
+            $table->foreignId('fabcon_id')->nullable();
+            $table->foreignId('detergent_id')->nullable();
             $table->string('trans_number');
             $table->string('status')->default('pending');
             $table->string('payment_status')->default('unpaid');
+            $table->string('ref_num')->nullable();
             $table->string('total')->nullable();
+            $table->string('amount')->nullable();
+            $table->integer('change')->nullable();
             $table->string('approved_by')->nullable();
             $table->timestamps();
         });

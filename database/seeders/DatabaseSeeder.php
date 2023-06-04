@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
         $this->call(CategorySeeder::class);
         $this->call(HandlingSeeder::class);
         $this->call(PaymentSeeder::class);
+        $this->call(ServiceSeeder::class);
+        $this->call(FabconSeeder::class);
+        $this->call(DetergentSeeder::class);
     }
 
 }
