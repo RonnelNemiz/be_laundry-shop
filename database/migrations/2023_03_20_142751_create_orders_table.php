@@ -25,9 +25,9 @@ class CreateOrdersTable extends Migration
             $table->string('status')->default('pending');
             $table->string('payment_status')->default('unpaid');
             $table->string('ref_num')->nullable();
-            $table->string('total')->nullable();
-            $table->string('amount')->nullable();
-            $table->integer('change')->nullable();
+            $table->decimal('total', 6, 2)->nullable();
+            $table->decimal('amount', 6, 2)->nullable();
+            $table->decimal('change', 6, 2)->nullable();
             $table->string('approved_by')->nullable();
             $table->timestamps();
         });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Detergent;
 use Illuminate\Http\Request;
 
@@ -67,6 +68,20 @@ class DetergentController extends Controller
             'data' => $detergent
         ], 200);
     }
+
+    
+    public function chooseDetergent(Request $request, Detergent $detergent, Order $order)
+    {
+        $order->update([
+            'detergent_id' => $detergent->id
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Successfully added Detergent!'
+        ]);
+    }
+
     public function destroy(Detergent $detergent)
     {
         $detergent->delete();

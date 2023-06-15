@@ -48,7 +48,6 @@ class OrderResource extends JsonResource
 
     public function toArray($request)
     {
-        
         return [
             'id' => $this->id,
             'trans_number' => $this->trans_number,

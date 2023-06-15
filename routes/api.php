@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -60,9 +61,10 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('delete/payments/{payment}', [PaymentController::class, 'destroy']);
 
     Route::get('fabcons', [FabconController::class, 'index']);
-    Route::get('show/fabcons', [FabconController::class, 'show']);
+    // Route::get('show/fabcons', [FabconController::class, 'show']);
     Route::get('view/fabcons/{fabcon}', [FabconController::class, 'view']);
     Route::post('add/fabcons', [FabconController::class, 'store']);
+    Route::post('choose/fabcon/{fabcon}/{order}', [FabconController::class, 'choose']);
     Route::put('update/fabcons/{fabcon}', [FabconController::class, 'update']);
     Route::delete('delete/fabcons/{fabcon}', [FabconController::class, 'destroy']);
 
@@ -72,11 +74,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('add/detergents', [DetergentController::class, 'store']);
     Route::put('update/detergents/{detergent}', [DetergentController::class, 'update']);
     Route::delete('delete/detergents/{detergent}', [DetergentController::class, 'destroy']);
+    Route::post('select/detergent/{detergent}/{order}', [DetergentController::class, 'chooseDetergent']);
 
     Route::post('new/orders', [OrderController::class, 'orders']);
+    Route::post('new/admin/orders', [OrderController::class, 'adminAddOrders']);
     Route::get('orders', [OrderController::class, 'index']);
     Route::get('show/orders/{id}', [OrderController::class, 'view']);
-    Route::put('update/orders/{id}', [OrderController::class, 'manualOrder']);
+    Route::put('update/orders/{order}', [OrderController::class, 'manualOrder']);
     Route::delete('delete/orders/{order}', [OrderController::class, 'destroy']);
     Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     Route::put('/orders/{id}/paymentstatus', [OrderController::class, 'updatePaymentStatus']);
@@ -91,21 +95,20 @@ Route::middleware('auth:api')->group(function () {
     Route::get('user/comments/{userId}', [ReviewController::class, 'getUserComments']);
     Route::get('admin/replies', [ReviewController::class, 'getAdminReply']);
 
-    Route::put('/orders/{order}/kilo', [OrderController::class, 'updateKilo']);
+    Route::put('/orders/{order}/{category}/kilo', [OrderController::class, 'updateKilo']);
     // Route::get('kilo/orders', [OrderController::class, 'indexKilo']);
     // Route::put('/orders/{order}/total', [OrderController::class, 'updateTotal']);
     Route::put('/orders/{id}/total', [OrderController::class, 'updateTotal']);
     Route::put('/orders/{id}/amount', [OrderController::class, 'updateAmount']);
     Route::put('/orders/{id}/change', [OrderController::class, 'updateChange']);
     Route::put('/orders/{id}/ref_num', [OrderController::class, 'updateRefNum']);
-    // Route::put('/orders/{id}/fabcon_id', [OrderController::class, 'updateFabcon']);
     Route::put('/orders/{id}/update-fabcon', [OrderController::class, 'updateFabcon']);
+    Route::put('/orders/{id}/update-detergent', [OrderController::class, 'updateDetergent']);
 
+    // Route::get('/account', [AccountController::class, 'getAccount']);
+    // Route::get('/get-info', [AccountController::class, 'getInfo']);
 
-
-
-
-
-
-
+    Route::get('customer', [UserController::class, 'customer']);
+    Route::get('history', [OrderController::class, 'customerHistory']);
+    Route::put('edit/profile/{user}', [UserController::class, 'customerUpdateProfile']);
 });

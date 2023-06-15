@@ -40,21 +40,25 @@ class Order extends Model
     {
         return $this->hasMany(Review::class);
     }
-    public function handlings()
+    public function handling()
     {
-        return $this->belongsToMany(Handling::class);
+        return $this->belongsTo(Handling::class);
     }
-    public function fabcons()
+    public function fabcon()
     {
-        return $this->belongsToMany(Fabcon::class);
+        return $this->belongsTo(Fabcon::class);
     }
-    public function detergents()
+    public function detergent()
     {
-        return $this->belongsToMany(Detergent::class);
+        return $this->belongsTo(Detergent::class);
     }
-    public function services()
+    public function service()
     {
-        return $this->belongsToMany(Service::class);
+        return $this->belongsTo(Service::class);
+    }
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class);
     }
     public function user()
     {
@@ -63,15 +67,26 @@ class Order extends Model
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'category_user', 'order_id', 'category_id')
-        ->withPivot('order_id', 'quantity', 'kilo');
+            ->withPivot('order_id', 'user_id', 'quantity', 'kilo');
     }
 
     public function updateStatus($newStatus)
     {
-        if ($newStatus === 'in progress' && $this->status === 'pending') {
+     
+        if ($newStatus === 'ready to pickup' && $this->status === 'pending') {
+            $this->status = 'ready to pickup';
+            $this->save();
+        }
+        elseif ($newStatus === 'in progress' && ($this->status === 'ready to pickup' || $this->status === 'pending')) {
             $this->status = 'in progress';
             $this->save();
-        } elseif ($newStatus === 'completed' && $this->status === 'in progress') {
+        } elseif ($newStatus === 'ready for pickup' && $this->status === 'in progress') {
+            $this->status = 'ready for pickup';
+            $this->save();
+        } elseif ($newStatus === 'ready to deliver' && ($this->status === 'ready for pickup' || $this->status === 'in progress')) {
+            $this->status = 'ready to deliver';
+            $this->save();
+        } elseif ($newStatus === 'completed' && ($this->status === 'ready to deliver' || $this->status === 'ready for pickup')) {
             $this->status = 'completed';
             $this->save();
         }
@@ -83,5 +98,4 @@ class Order extends Model
             $this->save();
         }
     }
-  
 }
