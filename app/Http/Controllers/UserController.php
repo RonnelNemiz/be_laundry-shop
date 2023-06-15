@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Profile;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
@@ -24,6 +25,51 @@ class UserController extends Controller
         $query->orderBy('id', 'desc');
         return UserResource::collection($this->paginated($query, $request));
     }
+    public function customer()
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Customer not found!'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Customer found!',
+                'user' => new UserResource($user)
+            ]);
+        }
+    }
+
+    public function customerUpdateProfile(User $user, Request $request)
+    {
+        $user->update([
+            'email' => $request->email,
+            'password'  => Hash::make($request->password),
+            'role' => $request->role,
+        ]);
+
+        $profile = $user->profile;
+
+        $profile->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'purok' => $request->purok,
+            'brgy' => $request->brgy,   
+            'land_mark' => $request->land_mark,     
+            'municipality' => $request->municipality,
+            'contact_number' => $request->contact_number,
+
+        ]);
+        return $profile;
+       
+        // return response()->json([
+        //     'status' => 200,
+        //     'message' => "Sucessfully Updated!"
+        // ]);
+    }
 
     public function getAllUsers(Request $request)
     {
@@ -34,57 +80,60 @@ class UserController extends Controller
     }
 
 
-public function store(Request $request)
-{
-    $user = User::where('email', $request->email)->first();
-
-    if (empty($user)) {
-        $newUser = User::create([
-            "email" => $request->email,
-            "password" => Hash::make($request->password),
-            "role" => $request->role,
-        ]);
-
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('public/images');
-            $imageUrl = Storage::url($imagePath);
-
-            $profile = Profile::create([
-                'user_id' => $newUser->id,
-                "first_name" => $request->first_name,
-                "last_name" => $request->last_name,
-                "purok" => $request->purok,
-                "brgy" => $request->brgy,
-                "municipality" => $request->municipality,
-                "land_mark" => "Leyte",
-                "contact_number" => $request->contact_number,
-                "image" => $imageUrl,
+    public function store(Request $request)
+    {
+        $user = User::where('email', $request->email)->first();
+        $image = $request->file('image');
+        if (empty($user)) {
+            $newUser = User::create([
+                "email" => $request->email,
+                "password" => Hash::make($request->password),
+                "role" => $request->role,
             ]);
-        } else {
-            $profile = Profile::create([
-                'user_id' => $newUser->id,
-                "first_name" => $request->first_name,
-                "last_name" => $request->last_name,
-                "purok" => $request->purok,
-                "brgy" => $request->brgy,
-                "municipality" => $request->municipality,
-                "land_mark" => "Leyte",
-                "contact_number" => $request->contact_number,
-                "image" => "",
+
+            if ($image) {
+                $filename = "image" . "_" . Str::random(5) . "." . $image->getClientOriginalExtension();
+                if (!Storage::disk('public')->exists('photos')) {
+                    Storage::disk('public')->makeDirectory('photos');
+                }
+                $image->storeAs('app/public/photos', $filename);
+                $imageUrl = asset('storage/photos/' . $filename);
+
+                $profile = Profile::create([
+                    'user_id' => $newUser->id,
+                    "first_name" => $request->first_name,
+                    "last_name" => $request->last_name,
+                    "purok" => $request->purok,
+                    "brgy" => $request->brgy,
+                    "municipality" => $request->municipality,
+                    "land_mark" => "Leyte",
+                    "contact_number" => $request->contact_number,
+                    "image" => $imageUrl,
+                ]);
+            } else {
+                $profile = Profile::create([
+                    'user_id' => $newUser->id,
+                    "first_name" => $request->first_name,
+                    "last_name" => $request->last_name,
+                    "purok" => $request->purok,
+                    "brgy" => $request->brgy,
+                    "municipality" => $request->municipality,
+                    "land_mark" => "Leyte",
+                    "contact_number" => $request->contact_number,
+                ]);
+            }
+
+            return response()->json([
+                'status' => 200,
+                'message' => "Successfully Added!",
             ]);
         }
 
         return response()->json([
-            'status' => 200,
-            'message' => "Successfully Added!",
+            'status' => 500,
+            'message' => "Email is taken!",
         ]);
     }
-
-    return response()->json([
-        'status' => 500,
-        'message' => "Email is taken!",
-    ]);
-}
 
 
     public function editUser(User $user, Request $request)
@@ -102,10 +151,10 @@ public function store(Request $request)
             'last_name' => $request->last_name,
             'purok' => $request->purok,
             'brgy' => $request->brgy,
-            'land_mark' => $request->land_mark,
+            'land_mark' => $request->land_mark,     
             'municipality' => $request->municipality,
             'contact_number' => $request->contact_number,
-          
+
         ]);
 
         return response()->json([
@@ -135,7 +184,6 @@ public function store(Request $request)
         $query->where("role", "Customer");
         $query->orderBy('id', 'desc');
         return UserResource::collection($this->paginated($query, $request));
-      
     }
     public function addCustomer(Request $request)
     {
@@ -156,9 +204,9 @@ public function store(Request $request)
                 "purok" => $request->purok,
                 "brgy" => $request->brgy,
                 "municipality" => $request->municipality,
-                "land_mark" =>  $request->land_mark ,
+                "land_mark" =>  $request->land_mark,
                 "contact_number" => $request->contact_number,
-              
+
             ]);
 
             return response()->json([
@@ -173,23 +221,23 @@ public function store(Request $request)
         ]);
     }
 
-public function showCustomer($id)
-{
-    $user = User::findOrFail($id);
+    public function showCustomer($id)
+    {
+        $user = User::findOrFail($id);
 
-    if (!$user) {
-        return response()->json([
-            'message' => 'Not Found',
-        ], 500);
+        if (!$user) {
+            return response()->json([
+                'message' => 'Not Found',
+            ], 500);
+        }
+
+        $profile = $user->profile;
+
+        // Append the image URL to the profile object
+        $profile->image_url = Storage::url($profile->image);
+
+        return new UserResource($user);
     }
-
-    $profile = $user->profile;
-
-    // Append the image URL to the profile object
-    $profile->image_url = Storage::url($profile->image);
-
-    return new UserResource($user);
-}
 
     public function destroy(User $user)
     {
@@ -197,6 +245,4 @@ public function showCustomer($id)
         $user->delete();
         return response()->json([200, "Successfully Deleted!"]);
     }
-   
-
 }
