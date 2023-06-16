@@ -19,6 +19,9 @@ use App\Http\Controllers\DetergentController;
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::get('categories', [CategoryController::class, 'index']);
+Route::get('show/services', [ServiceController::class, 'show']);
+Route::get('show/handlings', [HandlingController::class, 'show']);
+Route::get('show/payments', [PaymentController::class, 'show']);
 
 Route::middleware('auth:api')->group(function () {
     // Route::get('all-customers',[AuthController::class,'getCustomers']);
@@ -40,21 +43,18 @@ Route::middleware('auth:api')->group(function () {
     Route::get('all-users', [UserController::class, 'getAllUsers']);
 
     Route::get('handlings', [HandlingController::class, 'index']);
-    Route::get('show/handlings', [HandlingController::class, 'show']);
     Route::get('view/handlings/{handling}', [HandlingController::class, 'view']);
     Route::post('add/handlings', [HandlingController::class, 'store']);
     Route::put('update/handlings/{handling}', [HandlingController::class, 'update']);
     Route::delete('delete/handlings/{handling}', [HandlingController::class, 'destroy']);
 
     Route::get('services', [ServiceController::class, 'index']);
-    Route::get('show/services', [ServiceController::class, 'show']);
     Route::get('view/services/{service}', [ServiceController::class, 'view']);
     Route::post('add/services', [ServiceController::class, 'store']);
     Route::put('update/services/{service}', [ServiceController::class, 'update']);
     Route::delete('delete/services/{service}', [ServiceController::class, 'destroy']);
 
     Route::get('payments', [PaymentController::class, 'index']);
-    Route::get('show/payments', [PaymentController::class, 'show']);
     Route::get('view/payments/{payment}', [PaymentController::class, 'view']);
     Route::post('add/payments', [PaymentController::class, 'store']);
     Route::put('update/payments/{payment}', [PaymentController::class, 'update']);
