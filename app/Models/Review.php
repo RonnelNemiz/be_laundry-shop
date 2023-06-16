@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Review extends Model
 {
     use HasFactory;
-    protected $fillable=[
+    protected $fillable = [
         'user_id',
         'ratings',
         'comments',
@@ -20,8 +20,7 @@ class Review extends Model
     //     return $this->belongsTo(User::class)->select('id', 'first_name', 'last_name');
     // }
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
-
+    {
+        return $this->belongsTo(User::class);
+    }
 }

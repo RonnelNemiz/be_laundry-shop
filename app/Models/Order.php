@@ -56,6 +56,10 @@ class Order extends Model
     {
         return $this->belongsTo(Service::class);
     }
+    public function sale()
+    {
+        return $this->belongsTo(Sales::class);
+    }
     public function payment()
     {
         return $this->belongsTo(Payment::class);

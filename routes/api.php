@@ -15,6 +15,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HandlingController;
 use App\Http\Controllers\DetergentController;
+use App\Http\Controllers\SalesController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -22,6 +23,7 @@ Route::get('categories', [CategoryController::class, 'index']);
 Route::get('show/services', [ServiceController::class, 'show']);
 Route::get('show/handlings', [HandlingController::class, 'show']);
 Route::get('show/payments', [PaymentController::class, 'show']);
+Route::get('show/services', [ServiceController::class, 'index']);
 
 Route::middleware('auth:api')->group(function () {
     // Route::get('all-customers',[AuthController::class,'getCustomers']);
@@ -92,7 +94,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('delete/reviews/{review}', [ReviewController::class, 'destroy']);
     Route::get('view/reviews/{review}', [ReviewController::class, 'view']);
     Route::post('reviews/{reviewId}/reply', [ReviewController::class, 'reply']);
-    Route::get('user/comments/{userId}', [ReviewController::class, 'getUserComments']);
+    Route::get('user/comments/{user}', [ReviewController::class, 'getUserComments']);
     Route::get('admin/replies', [ReviewController::class, 'getAdminReply']);
 
     Route::put('/orders/{order}/{category}/kilo', [OrderController::class, 'updateKilo']);
@@ -111,4 +113,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('customer', [UserController::class, 'customer']);
     Route::get('history', [OrderController::class, 'customerHistory']);
     Route::put('edit/profile/{user}', [UserController::class, 'customerUpdateProfile']);
+    Route::get('/totalsales', [OrderController::class, 'totalsales']);
 });
