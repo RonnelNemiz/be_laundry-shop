@@ -3,20 +3,21 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Profile;
+use App\Models\Service;
 use App\Models\Category;
 use App\Models\Handling;
 use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
-use Illuminate\Support\Facades\DB;
-use App\Http\Resources\OrderResource;
-use App\Models\Profile;
-use App\Models\Service;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\OrderResource;
 
 class OrderController extends Controller
 {
@@ -29,24 +30,57 @@ class OrderController extends Controller
         return OrderResource::collection($this->paginated($query, $request));
     }
 
+    public function totalsales(){
+
+        try {
+            // Calculate total sales for today
+            $today = Carbon::now()->format('Y-m-d');
+            $totalTodaySales = Order::whereDate('created_at', $today)->sum('total');
+    
+            // Calculate total sales for the current week
+            $startOfWeek = Carbon::now()->startOfWeek()->format('Y-m-d');
+            $endOfWeek = Carbon::now()->endOfWeek()->format('Y-m-d');
+            $totalWeekSales = Order::whereBetween('created_at', [$startOfWeek, $endOfWeek])->sum('total');
+    
+            // Calculate total sales for the current month
+            $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
+            $endOfMonth = Carbon::now()->endOfMonth()->format('Y-m-d');
+            $totalMonthSales = Order::whereBetween('created_at', [$startOfMonth, $endOfMonth])->sum('total');
+    
+            return response()->json([
+                'status' => 200,
+                'sales' => [
+                    'today' => $totalTodaySales,
+                    'week' => $totalWeekSales,
+                    'month' => $totalMonthSales,
+                ],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Failed to calculate sales.',
+            ]);
+        }
+    }
+
     public function customerHistory(Request $request)
     {
         $user = auth()->user();
-        
+
         $orders = Order::where('user_id', $user->id)
             ->with('categories')
             ->with('user.profile')
             ->with('categories.parent')
-            ->with('payment') 
+            ->with('payment')
             ->orderBy('id', 'desc')
             ->get();
-    
+
         return response()->json([
             'status' => 200,
             'orders' => $orders
         ]);
     }
-    
+
 
 
     public function orders(Request $request)
@@ -125,7 +159,6 @@ class OrderController extends Controller
             DB::rollback();
             return $e->getMessage();
         }
-
     }
     public function adminAddOrders(Request $request)
     {
@@ -304,10 +337,10 @@ class OrderController extends Controller
         if ($newStatus === 'ready to pickup' && $order->status === 'pending') {
             $order->status = 'ready to pickup';
             $order->save();
-        }   elseif ($newStatus === 'in progress' && ($order->status === 'ready to pickup' || $order->status === 'pending')) {
+        } elseif ($newStatus === 'in progress' && ($order->status === 'ready to pickup' || $order->status === 'pending')) {
             $order->status = 'in progress';
             $order->save();
-        }  elseif ($newStatus === 'ready for pickup' && $order->status === 'in progress') {
+        } elseif ($newStatus === 'ready for pickup' && $order->status === 'in progress') {
             $order->status = 'ready for pickup';
             $order->save();
         } elseif ($newStatus === 'ready to deliver' && ($order->status === 'ready for pickup' || $order->status === 'in progress')) {
@@ -521,4 +554,5 @@ class OrderController extends Controller
             ]);
         }
     }
+   
 }

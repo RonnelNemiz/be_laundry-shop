@@ -57,18 +57,17 @@ class UserController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'purok' => $request->purok,
-            'brgy' => $request->brgy,   
-            'land_mark' => $request->land_mark,     
+            'brgy' => $request->brgy,
+            'land_mark' => $request->land_mark,
             'municipality' => $request->municipality,
             'contact_number' => $request->contact_number,
-
         ]);
-        return $profile;
-       
-        // return response()->json([
-        //     'status' => 200,
-        //     'message' => "Sucessfully Updated!"
-        // ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Sucessfully Updated!",
+            'user' => new UserResource($user)
+        ]);
     }
 
     public function getAllUsers(Request $request)
@@ -151,7 +150,7 @@ class UserController extends Controller
             'last_name' => $request->last_name,
             'purok' => $request->purok,
             'brgy' => $request->brgy,
-            'land_mark' => $request->land_mark,     
+            'land_mark' => $request->land_mark,
             'municipality' => $request->municipality,
             'contact_number' => $request->contact_number,
 
