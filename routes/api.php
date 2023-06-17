@@ -26,9 +26,6 @@ Route::get('show/payments', [PaymentController::class, 'show']);
 Route::get('show/services', [ServiceController::class, 'index']);
 
 Route::middleware('auth:api')->group(function () {
-    // Route::get('all-customers',[AuthController::class,'getCustomers']);
-    // Route::put('update/customers/{profile}',[ProfileController::class,'editProfile']);
-    // Route::delete('delete/customers/{id}',[ProfileController::class,'destroy']);
 
     Route::get('roles', [RolesController::class, 'show']);
     Route::get('users', [UserController::class, 'index']);
@@ -94,12 +91,11 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('delete/reviews/{review}', [ReviewController::class, 'destroy']);
     Route::get('view/reviews/{review}', [ReviewController::class, 'view']);
     Route::post('reviews/{reviewId}/reply', [ReviewController::class, 'reply']);
-    Route::get('user/comments/{user}', [ReviewController::class, 'getUserComments']);
+    Route::get('user/comments/{userId}', [ReviewController::class, 'getUserComments']);
     Route::get('admin/replies', [ReviewController::class, 'getAdminReply']);
+    Route::delete('delete/customerside/{review}', [ReviewController::class, 'destroyCustomerSide']);
 
     Route::put('/orders/{order}/{category}/kilo', [OrderController::class, 'updateKilo']);
-    // Route::get('kilo/orders', [OrderController::class, 'indexKilo']);
-    // Route::put('/orders/{order}/total', [OrderController::class, 'updateTotal']);
     Route::put('/orders/{id}/total', [OrderController::class, 'updateTotal']);
     Route::put('/orders/{id}/amount', [OrderController::class, 'updateAmount']);
     Route::put('/orders/{id}/change', [OrderController::class, 'updateChange']);
@@ -107,8 +103,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/orders/{id}/update-fabcon', [OrderController::class, 'updateFabcon']);
     Route::put('/orders/{id}/update-detergent', [OrderController::class, 'updateDetergent']);
 
-    // Route::get('/account', [AccountController::class, 'getAccount']);
-    // Route::get('/get-info', [AccountController::class, 'getInfo']);
 
     Route::get('customer', [UserController::class, 'customer']);
     Route::get('history', [OrderController::class, 'customerHistory']);
