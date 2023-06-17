@@ -92,11 +92,11 @@ class UserController extends Controller
 
             if ($image) {
                 $filename = "image" . "_" . Str::random(5) . "." . $image->getClientOriginalExtension();
-                if (!Storage::disk('public')->exists('photos')) {
-                    Storage::disk('public')->makeDirectory('photos');
+                if (!Storage::disk('public')->exists('images')) {
+                    Storage::disk('public')->makeDirectory('images');
                 }
-                $image->storeAs('app/public/photos', $filename);
-                $imageUrl = asset('storage/photos/' . $filename);
+                $image->storeAs('/images', $filename);
+                $imageUrl = asset('storage/images/' . $filename);
 
                 $profile = Profile::create([
                     'user_id' => $newUser->id,

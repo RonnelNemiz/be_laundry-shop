@@ -24,9 +24,9 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         // return Order::with('categories')->with('user.profile')->with('categories.parent')->get();
-        $query = Order::query();
+        $query = Order::query()->with(['user.profile', 'categories.parent']);
         $query->orderBy('id', 'desc');
-        return $query->has('categories')->with('user.profile')->with('categories.parent')->get();
+        
         return OrderResource::collection($this->paginated($query, $request));
     }
 
