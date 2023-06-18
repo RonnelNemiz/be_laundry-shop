@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ReviewResource;
 use App\Models\Review;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
+
     public function index()
     {
         $reviews = Review::with('user')->get();
@@ -21,21 +21,22 @@ class ReviewController extends Controller
     {
         $validatedData = $request->validate([
             'rating' => 'required|numeric',
-            'comments' => 'required|string',
+            'comment' => 'required|string',
         ]);
 
         $review = new Review([
             'user_id' => auth()->user()->id,
-            'rating' => $validatedData['rating'],
-            'comments' => $validatedData['comments'],
+            'ratings' => $validatedData['rating'],
+            'comments' => $validatedData['comment'],
         ]);
 
         $review->save();
 
         $review->load('user.profile'); // Eager load the 'user' relationship with 'profile'
 
+        // Optionally, you can return a response or redirect the user
         return response()->json([
-            'review' => $review,
+            $review,
             'status' => 200,
         ]);
     }
@@ -51,10 +52,10 @@ class ReviewController extends Controller
         }
 
         $reply = $request->input('reply');
-        $reply_at = Carbon::parse($request->input('reply_at'));
+        $reply_at = date('Y-m-d H:i:s', strtotime($request->input('reply_at')));
 
         $review->reply = $reply;
-        $review->reply_at = $reply_at;
+        $review->reply_at = $reply_at; // Assign the converted value to $review->reply_at
 
         $review->save();
 
@@ -64,8 +65,10 @@ class ReviewController extends Controller
         ]);
     }
 
-    public function getUserComments($userId)
+    public function getUserComments()
     {
+        $userId = auth()->id(); // Get the authenticated user's ID
+
         $reviews = Review::where('user_id', $userId)->get();
 
         if ($reviews->isEmpty()) {
@@ -75,17 +78,22 @@ class ReviewController extends Controller
             ]);
         }
 
-        $comments = $reviews->pluck('comment')->toArray();
-        $replies = $reviews->pluck('reply')->toArray();
+        $data = $reviews->map(function ($review) {
+            return [
+                'rating' => $review->ratings,
+                'comment' => $review->comments,
+                'reply' => $review->reply,
+                'created_at' => $review->created_at,
+                'reply_at' => $review->reply_at,
+            ];
+        });
 
         return response()->json([
             'status' => 200,
-            'data' => [
-                'comments' => $comments,
-                'replies' => $replies,
-            ],
+            'data' => $data,
         ]);
     }
+
 
     public function getAdminReply()
     {
@@ -106,9 +114,28 @@ class ReviewController extends Controller
         ]);
     }
 
+    public function destroyCustomerSide($reviewId)
+{
+    try {
+        $review = Review::findOrFail($reviewId);
+        
+        // Perform the deletion logic
+        $review->delete();
+        
+        return response()->json(['message' => 'Successfully deleted!']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to delete review'], 500);
+    }
+}
+
+
     public function destroy(Review $review)
     {
-        $review->delete();
+        try {
+            $review->delete();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete review'], 500);
+        }
 
         return response()->json(['message' => 'Successfully deleted!']);
     }
