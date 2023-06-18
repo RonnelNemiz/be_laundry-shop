@@ -111,4 +111,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('history', [OrderController::class, 'customerHistory']);
     Route::put('edit/profile/{user}', [UserController::class, 'customerUpdateProfile']);
     Route::get('/totalsales', [OrderController::class, 'totalsales']);
+    Route::get('/totalneworders', [OrderController::class, 'totalneworders']);
+    Route::get('/pending-orders-count', [OrderController::class, 'getPendingOrdersCount']);
 });
