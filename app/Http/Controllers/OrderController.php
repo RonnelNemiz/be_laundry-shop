@@ -554,5 +554,24 @@ class OrderController extends Controller
             ]);
         }
     }
+
+    public function orderDetails($id)
+    {
+        $order = DB::table('orders')
+                ->join('profiles','orders.user_id','=','profiles.user_id')
+                ->where('orders.id',$id)
+                ->select('orders.*','profiles.*')
+                ->first();
+        $orderItems = DB::table('category_user')
+                    ->join('categories','category_user.category_id','=','categories.id')
+                    ->select('categories.*','category_user.*')
+                    ->where('order_id',$id)->get();
+        $categoryParent = DB::table('categories')->get();
+        return response()->json([
+            'order' => $order,
+            'orderItems' => $orderItems,
+            'categoryParent' => $categoryParent
+        ]);
+    }
    
 }

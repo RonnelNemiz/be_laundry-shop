@@ -10,6 +10,7 @@ use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\ProfileResource;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -243,5 +244,21 @@ class UserController extends Controller
         $user->profile->delete();
         $user->delete();
         return response()->json([200, "Successfully Deleted!"]);
+    }
+
+    public function userRole()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            dd($user);
+            $role = $user->role;
+            return response()->json([
+                'role'=>$role
+            ],200);
+        } else {
+            return response()->json([
+                'role'=> '0'
+            ],200);
+        }
     }
 }

@@ -24,6 +24,7 @@ Route::get('show/services', [ServiceController::class, 'show']);
 Route::get('show/handlings', [HandlingController::class, 'show']);
 Route::get('show/payments', [PaymentController::class, 'show']);
 Route::get('show/services', [ServiceController::class, 'index']);
+Route::get('/account', [UserController::class, 'userRole']);
 
 Route::middleware('auth:api')->group(function () {
     // Route::get('all-customers',[AuthController::class,'getCustomers']);
@@ -87,6 +88,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     Route::put('/orders/{id}/paymentstatus', [OrderController::class, 'updatePaymentStatus']);
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+    Route::get('order-details/{id}',[OrderController::class,'orderDetails']);
 
     Route::get('reviews', [ReviewController::class, 'index']);
     Route::get('show/reviews', [ReviewController::class, 'show']);
@@ -107,7 +109,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/orders/{id}/update-fabcon', [OrderController::class, 'updateFabcon']);
     Route::put('/orders/{id}/update-detergent', [OrderController::class, 'updateDetergent']);
 
-    // Route::get('/account', [AccountController::class, 'getAccount']);
     // Route::get('/get-info', [AccountController::class, 'getInfo']);
 
     Route::get('customer', [UserController::class, 'customer']);
