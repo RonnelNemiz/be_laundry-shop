@@ -30,6 +30,37 @@ class OrderController extends Controller
         return OrderResource::collection($this->paginated($query, $request));
     }
 
+    public function getPendingOrdersCount()
+    {
+        $pendingCount = Order::where('status', 'pending')->count();
+        return $pendingCount;
+    }
+
+    public function totalneworders()
+    {
+
+        try {
+            $today = Carbon::today();
+
+
+            // Calculate today's orders
+            $todaysOrdersCount = Order::whereDate('created_at', $today)->count();
+
+
+            return response()->json([
+                'status' => 200,
+                'message' => "Order Successfully added!",
+                'todays_orders_count' => $todaysOrdersCount,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Failed to calculate sales.',
+            ]);
+        }
+    }
+
+
     public function totalsales()
     {
 
@@ -256,7 +287,7 @@ class OrderController extends Controller
 
         if (!$order) {
             return response()->json([
-                'message' => 'Handling not found',
+                'message' => 'Order not found',
             ], 500);
         }
 

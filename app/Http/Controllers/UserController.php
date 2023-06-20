@@ -9,8 +9,11 @@ use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\ProfileResource;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use PhpParser\Node\Expr\Instanceof_;
+
 
 class UserController extends Controller
 {
@@ -91,7 +94,7 @@ class UserController extends Controller
                 "role" => $request->role,
             ]);
 
-            if ($image) {
+            if ($image && $image instanceof UploadedFile) {
                 $filename = "image" . "_" . Str::random(5) . "." . $image->getClientOriginalExtension();
                 if (!Storage::disk('public')->exists('images')) {
                     Storage::disk('public')->makeDirectory('images');
@@ -189,13 +192,13 @@ class UserController extends Controller
     {
         $user = User::where('email', $request->email)->first();
 
-
         if (empty($user)) {
             $newUser = User::create([
                 "email" => $request->email,
                 "password" => $request->password,
                 "role" => "Customer",
             ]);
+
 
             Profile::create([
                 'user_id' => $newUser->id,
@@ -253,12 +256,12 @@ class UserController extends Controller
             dd($user);
             $role = $user->role;
             return response()->json([
-                'role'=>$role
-            ],200);
+                'role' => $role
+            ], 200);
         } else {
             return response()->json([
-                'role'=> '0'
-            ],200);
+                'role' => '0'
+            ], 200);
         }
     }
 }
