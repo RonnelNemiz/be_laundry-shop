@@ -28,6 +28,7 @@ class ReviewController extends Controller
             'user_id' => auth()->user()->id,
             'ratings' => $validatedData['rating'],
             'comments' => $validatedData['comment'],
+
         ]);
 
         $review->save();
@@ -115,18 +116,18 @@ class ReviewController extends Controller
     }
 
     public function destroyCustomerSide($reviewId)
-{
-    try {
-        $review = Review::findOrFail($reviewId);
-        
-        // Perform the deletion logic
-        $review->delete();
-        
-        return response()->json(['message' => 'Successfully deleted!']);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Failed to delete review'], 500);
+    {
+        try {
+            $review = Review::findOrFail($reviewId);
+
+            // Perform the deletion logic
+            $review->delete();
+
+            return response()->json(['message' => 'Successfully deleted!']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete review'], 500);
+        }
     }
-}
 
 
     public function destroy(Review $review)
