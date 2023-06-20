@@ -605,4 +605,43 @@ class OrderController extends Controller
             'categoryParent' => $categoryParent
         ]);
     }
+
+    public function updateOrderDetails(Request $request, Order $order)
+    {
+        DB::beginTransaction();
+        try {
+            $profile = Profile::where('user_id', $order->user->id)->first();
+
+            if (empty($profile)) {
+                throw new Exception('No Profile Found');
+            }
+
+            $profile = tap($profile)->update($request->all());
+
+            DB::commit();
+            return $order;
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 500,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function updateOrderItems(Request $request, Order $order)
+    {
+        DB::beginTransaction();
+        try {
+            foreach ($request->all() as $key => $value) {
+                if ($value['id']) {
+                    $categoryUser = DB::table('category_user')->where('order_id', $order->id)->where('category_id', $value['id']);
+                    if ($categoryUser) {
+                        // $categoryUser->quantity = $value->
+                    }
+                }
+            }
+        } catch (Exception $e) {
+        }
+    }
 }
