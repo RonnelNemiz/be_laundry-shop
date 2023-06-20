@@ -16,71 +16,28 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Colored Bedsheet Towel',
+                'name' => 'Colored Beddings & Bathroom Accessories',
                 'price' => 200,
-                'children' => [
-                    'colorbdst_bedsheet',
-                    'colorbdst_towel',
-                    'colorbdst_curtain',
-                    'colorbdst_pillowcase',
-                    'colorbdst_blanket'
-                ],
             ],
             [
-                'name' => 'Colored Garment Towel',
-                'price' => 150,
-                'children' => [
-                    'colorgart_tshirt',
-                    'colorgart_shorts',
-                    'colorgart_trousers',
-                    'colorgart_jacket',
-                    'colorgart_underwear',
-                    'colorgart_blouse',
-                    'colorgart_socks',
-                    'colorgart_handkerchief',
-                    'colorgart_pants'
-                ],
-            ],
-            [
-                'name' => 'White Bedsheet Towel',
+                'name' => 'White Beddings & Bathroom Accessories',
                 'price' => 250,
-                'children' => [
-                    'whitebdst_bedsheet',
-                    'whitebdst_towel',
-                    'whitebdst_curtain',
-                    'whitebdst_pillowcase',
-                    'whitebdst_blanket'
-                ]
             ],
             [
-                'name' => 'White Garment Towel',
+                'name' => 'Colored Garments',
+                'price' => 150,
+            ],
+            [
+                'name' => 'White Garments',
                 'price' => 300,
-                'children' => [
-                    'whitegart_tshirt',
-                    'whitegart_shorts',
-                    'whitegart_trousers',
-                    'whitegart_jacket',
-                    'whitegart_underwear',
-                    'whitegart_blouse',
-                    'whitegart_socks',
-                    'whitegart_handkerchief',
-                    'whitegart_pants'
-                ],
             ],
         ];
 
-        foreach ($categories  as $category) {
+        foreach ($categories as $category) {
             $newCategories = Category::updateOrCreate([
                 'name' => $category['name'],
                 'price' => $category['price'],
             ]);
-
-            foreach ($category['children'] as $child) {
-                Category::updateOrCreate([
-                    'name' => $child,
-                    'parent_id' => $newCategories->id,
-                ]);
-            }
         }
     }
 }
