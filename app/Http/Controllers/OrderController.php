@@ -26,27 +26,28 @@ class OrderController extends Controller
         // return Order::with('categories')->with('user.profile')->with('categories.parent')->get();
         $query = Order::query()->with(['user.profile', 'categories.parent']);
         $query->orderBy('id', 'desc');
-        
+
         return OrderResource::collection($this->paginated($query, $request));
     }
 
-    public function totalsales(){
+    public function totalsales()
+    {
 
         try {
             // Calculate total sales for today
             $today = Carbon::now()->format('Y-m-d');
             $totalTodaySales = Order::whereDate('created_at', $today)->sum('total');
-    
+
             // Calculate total sales for the current week
             $startOfWeek = Carbon::now()->startOfWeek()->format('Y-m-d');
             $endOfWeek = Carbon::now()->endOfWeek()->format('Y-m-d');
             $totalWeekSales = Order::whereBetween('created_at', [$startOfWeek, $endOfWeek])->sum('total');
-    
+
             // Calculate total sales for the current month
             $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
             $endOfMonth = Carbon::now()->endOfMonth()->format('Y-m-d');
             $totalMonthSales = Order::whereBetween('created_at', [$startOfMonth, $endOfMonth])->sum('total');
-    
+
             return response()->json([
                 'status' => 200,
                 'sales' => [
@@ -558,14 +559,14 @@ class OrderController extends Controller
     public function orderDetails($id)
     {
         $order = DB::table('orders')
-                ->join('profiles','orders.user_id','=','profiles.user_id')
-                ->where('orders.id',$id)
-                ->select('orders.*','profiles.*')
-                ->first();
+            ->join('profiles', 'orders.user_id', '=', 'profiles.user_id')
+            ->where('orders.id', $id)
+            ->select('orders.*', 'profiles.*')
+            ->first();
         $orderItems = DB::table('category_user')
-                    ->join('categories','category_user.category_id','=','categories.id')
-                    ->select('categories.*','category_user.*')
-                    ->where('order_id',$id)->get();
+            ->join('categories', 'category_user.category_id', '=', 'categories.id')
+            ->select('categories.*', 'category_user.*')
+            ->where('order_id', $id)->get();
         $categoryParent = DB::table('categories')->get();
         return response()->json([
             'order' => $order,
@@ -573,5 +574,43 @@ class OrderController extends Controller
             'categoryParent' => $categoryParent
         ]);
     }
-   
+
+    public function updateOrderDetails(Request $request, Order $order)
+    {
+        DB::beginTransaction();
+        try {
+            $profile = Profile::where('user_id', $order->user->id)->first();
+
+            if (empty($profile)) {
+                throw new Exception('No Profile Found');
+            }
+
+            $profile = tap($profile)->update($request->all());
+
+            DB::commit();
+            return $order;
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 500,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function updateOrderItems(Request $request, Order $order)
+    {
+        DB::beginTransaction();
+        try {
+            foreach ($request->all() as $key => $value) {
+                if ($value['id']) {
+                    $categoryUser = DB::table('category_user')->where('order_id', $order->id)->where('category_id', $value['id']);
+                    if ($categoryUser) {
+                        // $categoryUser->quantity = $value->
+                    }
+                }
+            }
+        } catch (Exception $e) {
+        }
+    }
 }

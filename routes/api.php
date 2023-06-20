@@ -26,6 +26,7 @@ Route::get('show/payments', [PaymentController::class, 'show']);
 Route::get('show/services', [ServiceController::class, 'index']);
 Route::get('/account', [UserController::class, 'userRole']);
 
+Route::get('category-list', [CategoryController::class, 'getCategoryWithChild']);
 Route::middleware('auth:api')->group(function () {
 
     Route::get('roles', [RolesController::class, 'show']);
@@ -85,7 +86,9 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     Route::put('/orders/{id}/paymentstatus', [OrderController::class, 'updatePaymentStatus']);
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-    Route::get('order-details/{id}',[OrderController::class,'orderDetails']);
+    Route::get('order-details/{id}', [OrderController::class, 'orderDetails']);
+    Route::put('/orders/update-details/{order}', [OrderController::class, 'updateOrderDetails']);
+    Route::put('/orders/update-order-items/{order}', [OrderController::class, 'updateOrderItems']);
 
     Route::get('reviews', [ReviewController::class, 'index']);
     Route::get('show/reviews', [ReviewController::class, 'show']);

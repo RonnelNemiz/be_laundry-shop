@@ -42,4 +42,18 @@ class CategoryController extends Controller
 
         return array_values($nestedCategories);
     }
+
+    public function getCategoryWithChild()
+    {
+        $parentCategories = Category::whereNull('parent_id')->get();
+
+        $list = [];
+        foreach ($parentCategories as $parent) {
+            $item = $parent->toArray();
+            $child = Category::where('parent_id', $parent->id)->get();
+            $item['sub_categories'] = $child;
+            array_push($list, $item);
+        }
+        return $list;
+    }
 }
