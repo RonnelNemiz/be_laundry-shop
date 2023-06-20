@@ -25,6 +25,8 @@ Route::get('show/handlings', [HandlingController::class, 'show']);
 Route::get('show/payments', [PaymentController::class, 'show']);
 Route::get('show/services', [ServiceController::class, 'index']);
 Route::get('/account', [UserController::class, 'userRole']);
+Route::get('/get-info', [AccountController::class, 'getInfo']);
+Route::get('payments', [PaymentController::class, 'index']);
 
 Route::get('category-list', [CategoryController::class, 'getCategoryWithChild']);
 Route::middleware('auth:api')->group(function () {
@@ -55,7 +57,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('update/services/{service}', [ServiceController::class, 'update']);
     Route::delete('delete/services/{service}', [ServiceController::class, 'destroy']);
 
-    Route::get('payments', [PaymentController::class, 'index']);
+    // Route::get('payments', [PaymentController::class, 'index']);
     Route::get('view/payments/{payment}', [PaymentController::class, 'view']);
     Route::post('add/payments', [PaymentController::class, 'store']);
     Route::put('update/payments/{payment}', [PaymentController::class, 'update']);
@@ -107,8 +109,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/orders/{id}/ref_num', [OrderController::class, 'updateRefNum']);
     Route::put('/orders/{id}/update-fabcon', [OrderController::class, 'updateFabcon']);
     Route::put('/orders/{id}/update-detergent', [OrderController::class, 'updateDetergent']);
-
-    Route::get('/get-info', [AccountController::class, 'getInfo']);
 
     Route::get('customer', [UserController::class, 'customer']);
     Route::get('history', [OrderController::class, 'customerHistory']);

@@ -11,11 +11,9 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\ProfileResource;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-<<<<<<< Updated upstream
 use Illuminate\Support\Facades\Auth;
-=======
 use PhpParser\Node\Expr\Instanceof_;
->>>>>>> Stashed changes
+
 
 class UserController extends Controller
 {
@@ -258,12 +256,12 @@ class UserController extends Controller
             dd($user);
             $role = $user->role;
             return response()->json([
-                'role'=>$role
-            ],200);
+                'role' => $role
+            ], 200);
         } else {
             return response()->json([
-                'role'=> '0'
-            ],200);
+                'role' => '0'
+            ], 200);
         }
     }
 }
