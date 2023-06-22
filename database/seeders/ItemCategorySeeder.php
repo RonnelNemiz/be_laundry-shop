@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
+use App\Models\ItemCategory;
 use Illuminate\Database\Seeder;
 
-class CategorySeeder extends Seeder
+class ItemCategorySeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,25 +18,30 @@ class CategorySeeder extends Seeder
             [
                 'name' => 'Colored Beddings & Bathroom Accessories',
                 'price' => 200,
+                'service_id' => 1
             ],
             [
                 'name' => 'White Beddings & Bathroom Accessories',
                 'price' => 250,
+                'service_id' => 1
             ],
             [
                 'name' => 'Colored Garments',
                 'price' => 150,
+                'service_id' => 1
             ],
             [
                 'name' => 'White Garments',
                 'price' => 300,
+                'service_id' => 1
             ],
         ];
 
         foreach ($categories as $category) {
-            $newCategories = Category::updateOrCreate([
+            $newCategories = ItemCategory::updateOrCreate([
                 'name' => $category['name'],
                 'price' => $category['price'],
+                'service_id' => $category['service_id']
             ]);
         }
     }
