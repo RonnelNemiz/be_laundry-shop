@@ -22,7 +22,7 @@ class AdminProfileSeeder extends Seeder
             'brgy' => 'Di Makita',
             'municipality' => 'Hanap-hanap',
             'contact_number' => '0912-345-6789',
-            'land_mark' => 'Biringan'
+            'land_mark' => 'Biringan',
         ]);
     }
 }
