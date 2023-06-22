@@ -14,13 +14,10 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call(AdminSeeder::class);
+        $this->call(AdminProfileSeeder::class);
         $this->call(RoleSeeder::class);
-        $this->call(CategorySeeder::class);
+        $this->call(ItemCategorySeeder::class);
+        $this->call(ItemTypesSeeder::class);
         $this->call(HandlingSeeder::class);
-        $this->call(PaymentSeeder::class);
-        $this->call(ServiceSeeder::class);
-        $this->call(FabconSeeder::class);
-        $this->call(DetergentSeeder::class);
     }
-
 }

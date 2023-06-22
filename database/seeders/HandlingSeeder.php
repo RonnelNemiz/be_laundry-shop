@@ -16,31 +16,29 @@ class HandlingSeeder extends Seeder
     {
         $handlings = [
             [
-                'handling_name' => 'Pickup & Delivery',
-                'handling_price' => 40,
+                'name' => 'Pickup & Delivery',
+                'price' => 40,
             ],
             [
-                'handling_name' => 'Pickup',
-                'handling_price' => 20,
+                'name' => 'Pickup',
+                'price' => 20,
             ],
             [
-                'handling_name' => 'Delivery',
-                'handling_price' => 20,
+                'name' => 'Delivery',
+                'price' => 20,
             ],
             [
-                'handling_name' => 'Walkin',
-                'handling_price' => 0,
+                'name' => 'Walkin',
+                'price' => 0,
             ]
         ];
 
         foreach ($handlings as $handling) {
             Handling::updateOrCreate([
-                'handling_name' => $handling['handling_name'],
+                'name' => $handling['name'],
             ], [
-                'handling_price' => $handling['handling_price'],
+                'price' => $handling['price'],
             ]);
         };
-        
-       
     }
 }
