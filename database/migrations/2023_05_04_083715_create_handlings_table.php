@@ -16,8 +16,8 @@ class CreateHandlingsTable extends Migration
     {
         Schema::create('handlings', function (Blueprint $table) {
             $table->id();
-            $table->string( 'handling_name');
-            $table->integer('handling_price');
+            $table->string('name');
+            $table->integer('price');
             $table->timestamps();
         });
     }

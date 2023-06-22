@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CategoryResource;
-use App\Models\Category;
+use App\Models\ItemCategory;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::all();
+        $categories = ItemCategory::all();
 
         return response()->json([
             'status' => 200,
@@ -45,15 +45,30 @@ class CategoryController extends Controller
 
     public function getCategoryWithChild()
     {
-        $parentCategories = Category::whereNull('parent_id')->get();
+        // $parentCategories = ItemCategory::whereNull('parent_id')->get();
 
-        $list = [];
-        foreach ($parentCategories as $parent) {
-            $item = $parent->toArray();
-            $child = Category::where('parent_id', $parent->id)->get();
-            $item['sub_categories'] = $child;
-            array_push($list, $item);
+        // $list = [];
+        // foreach ($parentCategories as $parent) {
+        //     $item = $parent->toArray();
+        //     $child = ItemCategory::where('parent_id', $parent->id)->get();
+        //     $item['sub_categories'] = $child;
+        //     array_push($list, $item);
+        // }
+        // return $list;
+
+        $data = [];
+
+        $itemCategories = ItemCategory::with('itemTypes')->get();
+
+        foreach ($itemCategories as $itemCategory) {
+            $categoryData = [
+                'category_name' => $itemCategory->name,
+                'item_types' => $itemCategory->itemTypes->toArray(),
+            ];
+
+            $data['item_categories'][] = $categoryData;
         }
-        return $list;
+
+        return response()->json($data);
     }
 }

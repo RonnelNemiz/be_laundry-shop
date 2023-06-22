@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDetergentsTable extends Migration
+class CreateItemCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateDetergentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('detergents', function (Blueprint $table) {
+        Schema::create('item_categories', function (Blueprint $table) {
             $table->id();
-            $table->string( 'detergent_name');
-            $table->integer('detergent_price');
-            $table->integer('detergent_scoop');
-            $table->string('image')->nullable();
+            $table->string('name');
+            $table->integer('service_id');
+            $table->integer('price')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ class CreateDetergentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('detergents');
+        Schema::dropIfExists('item_categories');
     }
 }

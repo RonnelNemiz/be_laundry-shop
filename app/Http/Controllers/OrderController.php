@@ -9,7 +9,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Profile;
 use App\Models\Service;
-use App\Models\Category;
+use App\Models\ItemCategory;
 use App\Models\Handling;
 use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
@@ -161,7 +161,7 @@ class OrderController extends Controller
 
             foreach ($categories as $key => $value) {
                 if (!empty($value)) {
-                    $category = Category::where('name', $key)->first();
+                    $category = ItemCategory::where('name', $key)->first();
                     if ($category) {
                         $parent_id = $category->parent_id;
                         $id = $category->id;
@@ -249,7 +249,7 @@ class OrderController extends Controller
 
             foreach ($categories as $key => $value) {
                 if (!empty($value)) {
-                    $category = Category::where('name', $key)->first();
+                    $category = ItemCategory::where('name', $key)->first();
                     if ($category) {
                         $parent_id = $category->parent_id;
                         $id = $category->id;
@@ -431,7 +431,7 @@ class OrderController extends Controller
 
 
     // input kilo
-    public function updateKilo(Request $request, Order $order, Category $category,)
+    public function updateKilo(Request $request, Order $order, ItemCategory $category,)
     {
         $newKilo = $request->input('kilo');
         $data = [
@@ -441,7 +441,7 @@ class OrderController extends Controller
         //update the kilo in the piivo
         $order->categories()->updateExistingPivot($category, $data);
 
-        $categories = Category::whereNull('parent_id')->get();
+        $categories = ItemCategory::whereNull('parent_id')->get();
         $totalKilo = 0;
         $totalPrice = 0;
 
@@ -594,7 +594,7 @@ class OrderController extends Controller
             ->where('orders.id', $id)
             ->select('orders.*', 'profiles.*')
             ->first();
-        $orderItems = DB::table('category_user')
+        $orderItems = DB::table('order_details')
             ->join('categories', 'category_user.category_id', '=', 'categories.id')
             ->select('categories.*', 'category_user.*')
             ->where('order_id', $id)->get();

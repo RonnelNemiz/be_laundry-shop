@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\SubCategory;
+use App\Models\ItemType;
 use Illuminate\Database\Seeder;
 
-class SubCategorySeeder extends Seeder
+class ItemTypesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -130,7 +130,7 @@ class SubCategorySeeder extends Seeder
         ];
 
         foreach ($subcategories  as $subcategory) {
-            $newSubCategories = SubCategory::updateOrCreate([
+            $newSubCategories = ItemType::updateOrCreate([
                 'name' => $subcategory['name'],
                 'parent_category' => $subcategory['parent_category'],
             ]);
