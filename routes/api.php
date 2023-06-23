@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AccountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -15,7 +14,11 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HandlingController;
 use App\Http\Controllers\DetergentController;
+use App\Http\Controllers\ItemCategoriesController;
+use App\Http\Controllers\ItemTypesController;
+use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\SalesController;
+use Laravel\Passport\Passport;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -25,7 +28,7 @@ Route::get('show/handlings', [HandlingController::class, 'show']);
 Route::get('show/payments', [PaymentController::class, 'show']);
 Route::get('show/services', [ServiceController::class, 'index']);
 Route::get('/account', [UserController::class, 'userRole']);
-Route::get('/get-info', [AccountController::class, 'getInfo']);
+// Route::get('/get-info', [AccountController::class, 'getInfo']);
 Route::get('payments', [PaymentController::class, 'index']);
 
 Route::get('category-list', [CategoryController::class, 'getCategoryWithChild']);
@@ -79,7 +82,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('delete/detergents/{detergent}', [DetergentController::class, 'destroy']);
     Route::post('select/detergent/{detergent}/{order}', [DetergentController::class, 'chooseDetergent']);
 
-    Route::post('new/orders', [OrderController::class, 'orders']);
+    Route::post('/new/orders', [OrderController::class, 'orders']);
     Route::post('new/admin/orders', [OrderController::class, 'adminAddOrders']);
     Route::get('orders', [OrderController::class, 'index']);
     Route::get('show/orders/{id}', [OrderController::class, 'view']);
@@ -116,4 +119,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/totalsales', [OrderController::class, 'totalsales']);
     Route::get('/totalneworders', [OrderController::class, 'totalneworders']);
     Route::get('/pending-orders-count', [OrderController::class, 'getPendingOrdersCount']);
+
+    Route::get('item-categories', [ItemCategoriesController::class, 'index']);
+
+    Route::get('item-types', [ItemTypesController::class, 'index']);
+
+    Route::get('payment-methods', [PaymentMethodController::class, 'index']);
 });

@@ -10,11 +10,16 @@ class ItemCategory extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'price'
+        'name', 'service_id'
     ];
 
     public function itemTypes()
     {
-        return $this->hasMany(ItemType::class, 'parent_category');
+        return $this->hasMany(ItemType::class, 'category_id');
+    }
+
+    public function services()
+    {
+        return $this->belongsTo(ItemType::class, 'id');
     }
 }
