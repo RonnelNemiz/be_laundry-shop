@@ -6,26 +6,18 @@ use PhpParser\Node\Expr\FuncCall;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
     use HasFactory;
     protected  $fillable = [
         'user_id',
-        'payment_id',
-        'handling_id',
+        'profile_id',
         'service_id',
-        'fabcon_id',
-        'detergent_id',
+        'handling_id',
         'trans_number',
-        'payment_status',
-        'status',
-        'total',
-        'ref_num',
-        'change',
-        'amount',
-        'approved_by',
-        'created_at',
+        'status'
     ];
     protected function generateTransactionNumber()
     {
@@ -33,55 +25,41 @@ class Order extends Model
         $lastNumber = DB::table('orders')->max('trans_number');
         $lastSequence = intval(substr($lastNumber, strlen($prefix)));
         $nextSequence = $lastSequence + 1;
-        $nextNumber = $prefix . str_pad($nextSequence, 6, '0', STR_PAD_LEFT);
+        $nextNumber = $prefix . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
         return $nextNumber;
     }
     public function reviews()
     {
         return $this->hasMany(Review::class);
     }
-    public function handling()
+    public function handling(): BelongsTo
     {
-        return $this->belongsTo(Handling::class);
+        return $this->belongsTo(Handling::class, 'handling_id');
     }
-    public function fabcon()
+    public function service(): BelongsTo
     {
-        return $this->belongsTo(Fabcon::class);
+        return $this->belongsTo(Service::class, 'service_id');
     }
-    public function detergent()
+    public function payment(): BelongsTo
     {
-        return $this->belongsTo(Detergent::class);
+        return $this->belongsTo(Payment::class, 'id');
     }
-    public function service()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
-    public function sale()
+    public function profile(): BelongsTo
     {
-        return $this->belongsTo(Sales::class);
-    }
-    public function payment()
-    {
-        return $this->belongsTo(Payment::class);
-    }
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-    public function categories()
-    {
-        return $this->belongsToMany(Category::class, 'category_user', 'order_id', 'category_id')
-            ->withPivot('order_id', 'user_id', 'quantity', 'kilo');
+        return $this->belongsTo(Profile::class, 'user_id');
     }
 
     public function updateStatus($newStatus)
     {
-     
+
         if ($newStatus === 'ready to pickup' && $this->status === 'pending') {
             $this->status = 'ready to pickup';
             $this->save();
-        }
-        elseif ($newStatus === 'in progress' && ($this->status === 'ready to pickup' || $this->status === 'pending')) {
+        } elseif ($newStatus === 'in progress' && ($this->status === 'ready to pickup' || $this->status === 'pending')) {
             $this->status = 'in progress';
             $this->save();
         } elseif ($newStatus === 'ready for pickup' && $this->status === 'in progress') {

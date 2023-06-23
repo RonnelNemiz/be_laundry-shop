@@ -11,6 +11,7 @@ use App\Models\Profile;
 use App\Models\Service;
 use App\Models\ItemCategory;
 use App\Models\Handling;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Collection;
@@ -21,13 +22,14 @@ use App\Http\Resources\OrderResource;
 
 class OrderController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         // return Order::with('categories')->with('user.profile')->with('categories.parent')->get();
-        $query = Order::query()->with(['user.profile', 'categories.parent']);
-        $query->orderBy('id', 'desc');
+        $orders = Order::with(['profile', 'service', 'handling', 'payment'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return OrderResource::collection($this->paginated($query, $request));
+        return OrderResource::collection($orders);
     }
 
     public function getPendingOrdersCount()
@@ -120,69 +122,73 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'status' => 400,
+                    'error' => 'User not found!'
+                ]);
+            }
             $profile = $user->profile;
-
-            $categories = $request->body['garments'];
-
-            $handle = $request->body['handling'];
-            $serbesyo = $request->body['service'];
-            $personalInfo = $request->body['personal_details'];
-            $paymentMethod = $request->body['payment_method'];
-
-            $user = User::updateOrCreate([
-                'email' => $personalInfo['email'],
-                'role' => 'Customer',
-            ]);
-
-            $profile->update([
-                'first_name' => $personalInfo['first_name'],
-                'last_name' => $personalInfo['last_name'],
-                'land_mark' => $personalInfo['land_mark'],
-                'purok' => $personalInfo['purok'],
-                'brgy' => $personalInfo['brgy'],
-                'municipality' => $personalInfo['municipality'],
-                'contact_number' => $personalInfo['contact_number']
-            ]);
-
-            $handling = Handling::where('handling_name', $handle)->first();
-            // $servicing = Service::where('service_name', $serbesyo)->first();
-            $payment = Payment::where('payment_name', $paymentMethod)->first();
-
-            $service = Service::where('service_name', $serbesyo)->first();
+            if (!$profile) {
+                return response()->json([
+                    'status' => 400,
+                    'error' => 'Profile not found!'
+                ]);
+            }
+            $handle = $request->handling;
+            $serbesyo = $request->service;
+            $personalInfo = $request->personal_details;
+            $paymentMethod = $request->payment_method;
 
             $transNumber = Order::generateTransactionNumber();
+
             $newOrder = Order::create([
                 'user_id' => $user->id,
-                'payment_id' => $payment->id,
-                'handling_id' => $handling->id,
+                'profile_id' => $user->profile['id'],
+                'handling_id' => $handle['id'],
+                'service_id' => $serbesyo['id'],
                 'trans_number' => $transNumber,
-                'service_id' => $service->id,
+                'status' => 0
             ]);
+            $newOrder->save();
 
-            foreach ($categories as $key => $value) {
-                if (!empty($value)) {
-                    $category = ItemCategory::where('name', $key)->first();
-                    if ($category) {
-                        $parent_id = $category->parent_id;
-                        $id = $category->id;
-                        $user->categories;
-                        $user->categories()->attach($parent_id, [
-                            'order_id' => $newOrder->id,
-                            'user_id' => $user->id,
-                            'category_id' => $id,
-                            'quantity' => $value,
-                        ]);
-                    }
-                }
+            if ($newOrder) {
+                $profile->update([
+                    'first_name' => $personalInfo['first_name'],
+                    'last_name' => $personalInfo['last_name'],
+                    'land_mark' => $personalInfo['land_mark'],
+                    'purok' => $personalInfo['purok'],
+                    'brgy' => $personalInfo['brgy'],
+                    'municipality' => $personalInfo['municipality'],
+                    'contact_number' => $personalInfo['contact_number']
+                ]);
+                $profile->save();
+                $payment = Payment::create([
+                    'order_id' => $newOrder->id,
+                    'payment_method_id' => $paymentMethod['id'],
+                    'tendered' => 0,
+                    'change' => 0,
+                    'staff_id' => 0,
+                    'status' => 0
+                ]);
+                $payment->save();
+            } else {
+                return response()->json([
+                    'status' => 400,
+                    'error' => $profile->error()
+                ]);
             }
 
             DB::commit();
 
-            $message = "Hi " . $profile->first_name . " " . $profile->last_name .
-                ', We have received your order with reference number '
-                . $transNumber . '. Thank you!';
+            $smsSetting = Setting::where('name', 'SMS')->first();
 
-            // $this->deliverNotification($profile, $message);
+            if ($smsSetting) {
+                $message = "Hi " . $profile->first_name . " " . $profile->last_name .
+                    ', We have received your order. Your order reference number is '
+                    . $transNumber . '. Thank you!';
+                $this->deliverNotification($profile, $message);
+            }
             return response()->json([
                 'status' => 200,
                 'message' => "Order Successfully added!"
@@ -265,6 +271,7 @@ class OrderController extends Controller
             }
 
             DB::commit();
+
 
             $message = "Hi " . $profile->first_name . " " . $profile->last_name .
                 ', We have received your order with reference number '
@@ -428,8 +435,6 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order status updated successfully']);
     }
 
-
-
     // input kilo
     public function updateKilo(Request $request, Order $order, ItemCategory $category,)
     {
@@ -477,8 +482,6 @@ class OrderController extends Controller
 
         // return response()->json(['message' => 'Kilo updated successfully']);
     }
-
-
 
     public function updateTotal(Request $request, $id)
     {

@@ -5,16 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ItemType extends Model
+class PaymentMethod extends Model
 {
     use HasFactory;
-
     protected $fillable = [
-        'name', 'category_id'
+        'name',
+        'logo',
+        'recipient',
+        'number',
+        'special_instructions'
     ];
-
-    public function itemCategory()
-    {
-        return $this->belongsTo(ItemCategory::class, 'category_id');
-    }
 }

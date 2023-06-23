@@ -21,7 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'email',
         'password',
-        'role'
+        'role_id'
     ];
 
     /**
@@ -50,20 +50,5 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class);
-    }
-    public function categories()
-    {
-        return $this->belongsToMany(Category::class)->with('children');
-    }
-    public function orders()
-    {
-        return $this->belongsToMany(Category::class)
-            ->withPivot('order_id', 'quantity', 'kilo')
-            ->withTimestamps();
-    }
-    public function userOrders()
-    {
-        return $this->belongsToMany(Category::class)
-            ->withPivot('order_id', 'quantity', 'kilo');
     }
 }

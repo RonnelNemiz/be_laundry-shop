@@ -35,6 +35,7 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'role' => $request->role,
                 'password' => Hash::make($request->password),
+                'role_id' => $request->role_id,
             ]);
             $profile = new Profile();
             $profile->user_id = $user['id'];

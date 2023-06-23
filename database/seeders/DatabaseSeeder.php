@@ -20,5 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ItemTypesSeeder::class);
         $this->call(HandlingSeeder::class);
         $this->call(ServiceSeeder::class);
+        $this->call(PaymentMethodSeeder::class);
+        $this->call(SettingsSeeder::class);
     }
 }
