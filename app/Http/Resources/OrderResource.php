@@ -25,6 +25,7 @@ class OrderResource extends JsonResource
             'handling' => $this->handling->name,
             'status' => $this->status == 0 ? "Pending" : "Confirmed",
             'payment_status' => $this->payment->status == 0 ? "Unpaid" : "Paid",
+            'handling_status' => $this->handling_status,
             // 'status' => $this->status,
             // 'payment_status' => $this->payment_status,
             // 'total' => $this->total,

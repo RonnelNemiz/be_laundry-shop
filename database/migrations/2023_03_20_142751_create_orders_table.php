@@ -18,6 +18,7 @@ class CreateOrdersTable extends Migration
             $table->integer('user_id');
             $table->integer('profile_id');
             $table->integer('service_id');
+            $table->integer('handling_id');
             $table->string('trans_number');
             $table->timestamps();
         });

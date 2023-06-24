@@ -28,8 +28,6 @@ class OrderController extends Controller
         $orders = Order::with(['profile', 'service', 'handling', 'payment'])
             ->orderBy('created_at', 'desc')
             ->get();
-        // $query = Order::query()->with(['user.profile']);
-        // $query->orderBy('id', 'desc');
 
         return OrderResource::collection($orders);
     }
@@ -185,7 +183,7 @@ class OrderController extends Controller
 
             $smsSetting = Setting::where('name', 'SMS')->first();
 
-            if ($smsSetting) {
+            if ($smsSetting->value == true) {
                 $message = "Hi " . $profile->first_name . " " . $profile->last_name .
                     ', We have received your order. Your order reference number is '
                     . $transNumber . '. Thank you!';
@@ -592,20 +590,23 @@ class OrderController extends Controller
         }
     }
 
-    public function orderDetails($id)
+    public function orderDetails(Order $order)
     {
-        $order = DB::table('orders')
-            ->join('profiles', 'orders.user_id', '=', 'profiles.user_id')
-            ->where('orders.id', $id)
-            ->select('orders.*', 'profiles.*')
-            ->first();
+        // $order = DB::table('orders')
+        //     ->join('profiles', 'orders.user_id', '=', 'profiles.user_id')
+        //     ->where('orders.id', $id)
+        //     ->select('orders.*', 'profiles.*')
+        //     ->first();
+
         $orderItems = DB::table('order_details')
-            ->join('categories', 'category_user.category_id', '=', 'categories.id')
-            ->select('categories.*', 'category_user.*')
-            ->where('order_id', $id)->get();
-        $categoryParent = DB::table('categories')->get();
+            ->join('item_categories', 'order_details.category_id', '=', 'item_categories.id')
+            ->select('item_categories.*', 'order_details.*')
+            ->where('order_id', $order->id)->get();
+
+        $categoryParent = DB::table('item_categories')->get();
+        dd($orderItems, $categoryParent);
         return response()->json([
-            'order' => $order,
+            'order' => $order->id,
             'orderItems' => $orderItems,
             'categoryParent' => $categoryParent
         ]);

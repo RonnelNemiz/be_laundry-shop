@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddHandlingIdToOrdersTable extends Migration
+class AddHandlingStatusToOrdersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddHandlingIdToOrdersTable extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->integer('handling_id')->after('service_id');
+            $table->integer('handling_status')->after('status');
         });
     }
 
@@ -26,7 +26,7 @@ class AddHandlingIdToOrdersTable extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('handling_id');
+            $table->dropColumn('handling_status');
         });
     }
 }

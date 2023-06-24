@@ -19,7 +19,6 @@ class CreateOrderDetailsTable extends Migration
             $table->integer('service_id');
             $table->integer('category_id');
             $table->text('items_breakdown');
-            $table->integer('handling_id');
             $table->string('weight')->nullable();
             $table->string('expenses')->nullable();
             $table->text('expenses_breakdown')->nullable();
