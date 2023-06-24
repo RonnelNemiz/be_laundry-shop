@@ -23,11 +23,13 @@ class UserController extends Controller
     {
         $search = $request->search;
 
-        $query = User::query();
-        $query->where("role_id", '!=', "4");
-        $query->where('role_id', '!=', '0');
-        $query->orderBy('id', 'desc');
-        return UserResource::collection($this->paginated($query, $request));
+        $query = User::join('roles', 'users.role_id', '=', 'roles.id')
+            ->where("users.role_id", '!=', "4")
+            ->where('users.role_id', '!=', '1')
+            ->select('users.*', 'roles.name as role_name')
+            ->orderBy('id', 'desc')->get();
+        // dd($query);
+        return UserResource::collection($query);
     }
     public function customer()
     {
