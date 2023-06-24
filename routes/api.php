@@ -42,8 +42,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('show/users/{user}', [UserController::class, 'showCustomer']);
     // Route::post('add/adminUsers', [UserController::class, 'storeAdminUsers']);
 
-    Route::get('all-customers', [UserController::class, 'getCustomers']);
-    Route::post('add/customer', [UserController::class, 'addCustomer']);
+    Route::get('/all-customers', [UserController::class, 'getCustomers']);
+    Route::post('/add/customer', [UserController::class, 'addCustomer']);
     Route::put('update/customer/{user}', [UserController::class, 'editCustomer']);
 
     Route::get('all-users', [UserController::class, 'getAllUsers']);

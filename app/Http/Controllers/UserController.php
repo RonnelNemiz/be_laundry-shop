@@ -24,8 +24,8 @@ class UserController extends Controller
         $search = $request->search;
 
         $query = User::query();
-        $query->where("role", '!=', "Customer");
-        $query->where('role', '!=', 'Administrator');
+        $query->where("role_id", '!=', "4");
+        $query->where('role_id', '!=', '0');
         $query->orderBy('id', 'desc');
         return UserResource::collection($this->paginated($query, $request));
     }
@@ -52,7 +52,7 @@ class UserController extends Controller
         $user->update([
             'email' => $request->email,
             'password'  => Hash::make($request->password),
-            'role' => $request->role,
+            'role_id' => $request->role_id,
         ]);
 
         $profile = $user->profile;
@@ -91,7 +91,7 @@ class UserController extends Controller
             $newUser = User::create([
                 "email" => $request->email,
                 "password" => Hash::make($request->password),
-                "role" => $request->role,
+                "role_id" => $request->role_id,
             ]);
 
             if ($image && $image instanceof UploadedFile) {
@@ -144,7 +144,33 @@ class UserController extends Controller
         $user->update([
             'email' => $request->email,
             // 'password'  => Hash::make($request->password),
-            'role' => $request->role,
+            'role_id' => $request->role_id,
+        ]);
+
+        $profile = $user->profile;
+
+        $profile->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'purok' => $request->purok,
+            'brgy' => $request->brgy,
+            'land_mark' => $request->land_mark,
+            'municipality' => $request->municipality,
+            'contact_number' => $request->contact_number,
+
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Sucessfully Updated!"
+        ]);
+    }
+    public function editCustomer(User $user, Request $request)
+    {
+        $user->update([
+            'email' => $request->email,
+            // 'password'  => Hash::make($request->password),
+            'role' => "Customer",
         ]);
 
         $profile = $user->profile;
@@ -166,6 +192,7 @@ class UserController extends Controller
         ]);
     }
 
+
     // Customers
 
     public function getCustomers(Request $request)
@@ -184,19 +211,20 @@ class UserController extends Controller
 
         // return ProfileResource::collection($this->paginated($query, $request));
         $query = User::query();
-        $query->where("role", "Customer");
+        $query->where("role_id", 4);
         $query->orderBy('id', 'desc');
         return UserResource::collection($this->paginated($query, $request));
     }
     public function addCustomer(Request $request)
     {
+
         $user = User::where('email', $request->email)->first();
 
         if (empty($user)) {
             $newUser = User::create([
                 "email" => $request->email,
-                "password" => $request->password,
-                "role" => "Customer",
+                "password" => Hash::make($request->password),
+                "role_id" => 4,
             ]);
 
 
@@ -240,6 +268,10 @@ class UserController extends Controller
         $profile->image_url = Storage::url($profile->image);
 
         return new UserResource($user);
+        // return response()->json([
+        //     'data' => $user,
+        //     'profile' => $profile,
+        // ]);
     }
 
     public function destroy(User $user)

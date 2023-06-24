@@ -51,4 +51,21 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class);
     }
+
+
+    public function categories()
+    {
+        return $this->belongsToMany(ItemCategory::class)->with('children');
+    }
+    public function orders()
+    {
+        return $this->belongsToMany(ItemCategory::class)
+            // ->withPivot('order_id', 'quantity', 'kilo')
+            ->withTimestamps();
+    }
+    public function userOrders()
+    {
+        return $this->belongsToMany(ItemCategory::class);
+        // ->withPivot('order_id', 'quantity', 'kilo');
+    }
 }
