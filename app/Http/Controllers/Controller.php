@@ -38,6 +38,7 @@ class Controller extends BaseController
             ],
         ]);
 
+        
         $statusCode = $response->getStatusCode();
         $responseData = json_decode($response->getBody(), true);
     }
