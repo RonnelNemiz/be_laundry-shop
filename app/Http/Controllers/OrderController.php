@@ -28,6 +28,8 @@ class OrderController extends Controller
         $orders = Order::with(['profile', 'service', 'handling', 'payment'])
             ->orderBy('created_at', 'desc')
             ->get();
+        // $query = Order::query()->with(['user.profile']);
+        // $query->orderBy('id', 'desc');
 
         return OrderResource::collection($orders);
     }

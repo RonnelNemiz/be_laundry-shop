@@ -25,6 +25,17 @@ class OrderResource extends JsonResource
             'handling' => $this->handling->name,
             'status' => $this->status == 0 ? "Pending" : "Confirmed",
             'payment_status' => $this->payment->status == 0 ? "Unpaid" : "Paid",
+            // 'status' => $this->status,
+            // 'payment_status' => $this->payment_status,
+            // 'total' => $this->total,
+            // 'ref_num' => $this->ref_num,
+            // 'change' => $this->change,
+            // 'amount' => $this->amount,
+            // 'approved_by' => $this->approved_by,
+            // 'profile' => ProfileResource::collection(Profile::where('user_id', $this->user_id)->get()),
+            // 'handling' => Handling::find($this->handling_id),
+            // 'service' => Service::find($this->service_id),
+            // 'payment' => Payment::find($this->payment_id),
             'created_at' => Carbon::parse($this->created_at)->format('m/d/Y'),
         ];
     }
