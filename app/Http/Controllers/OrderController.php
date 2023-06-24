@@ -186,10 +186,11 @@ class OrderController extends Controller
 
             $smsSetting = Setting::where('name', 'SMS')->first();
 
-            if ($smsSetting->value === 'true') {
+            if ($smsSetting->value == 'true') {
                 $message = "Hi " . $profile->first_name . " " . $profile->last_name .
                     ', We have received your order. Your order reference number is '
                     . $transNumber . '. Thank you!';
+                $this->deliverNotification($profile, $message);
             }
             return response()->json([
                 'status' => 200,
