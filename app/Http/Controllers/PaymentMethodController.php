@@ -50,18 +50,6 @@ class PaymentMethodController extends Controller
 
     public function update(Request $request, PaymentMethod $paymentMethod)
     {
-        // $paymentMethod->update([
-        //     'name' => $request->name,
-        //     'logo' => $request->logo,
-        //     'recipient' => $request->recipient,
-        //     'number' => $request->number,
-        //     'special_instructions' => $request->special_instructions,
-        // ]);
-
-        // return response()->json([
-        //     'message' => 'Payment Method data updated successfully',
-        //     'data' => $paymentMethod
-        // ], 200);
 
         $validatedData = $request->validate([
             'name' => 'required|max:255',
