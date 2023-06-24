@@ -12,12 +12,12 @@ class HandlingController extends Controller
         $handlings = Handling::all();
         return $handlings;
     }
-   
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'handling_name' => 'required|max:255',
-            'handling_price' => 'required|numeric',
+            'name' => 'required|max:255',
+            'price' => 'required|numeric',
         ]);
 
         $handling = Handling::create($validatedData);
@@ -29,11 +29,11 @@ class HandlingController extends Controller
             'status' => 200,
         ]);
     }
-    
+
     public function show()
     {
         $handlings = Handling::get();
-    
+
         return response()->json($handlings);
     }
 
@@ -51,23 +51,23 @@ class HandlingController extends Controller
         return response()->json($handling, 200);
     }
 
-    
-    
- 
+
+
+
     public function update(Request $request, Handling $handling)
-{
-    $validatedData = $request->validate([
-        'handling_name' => 'required|string|max:255',
-        'handling_price' => 'required|numeric',
-    ]);
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
 
-    $handling->update($validatedData);
+        $handling->update($validatedData);
 
-    return response()->json([
-        'message' => 'Handling data updated successfully',
-        'data' => $handling
-    ], 200);
-}
+        return response()->json([
+            'message' => 'Handling data updated successfully',
+            'data' => $handling
+        ], 200);
+    }
 
     public function destroy(Handling $handling)
     {
@@ -75,5 +75,4 @@ class HandlingController extends Controller
 
         return response()->json([200, "Successfully Deleted!"]);
     }
-
 }

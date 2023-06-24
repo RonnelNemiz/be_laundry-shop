@@ -9,7 +9,7 @@ class Handling extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'handling_name',
-        'handling_price',
-    ]; 
+        'name',
+        'price',
+    ];
 }
