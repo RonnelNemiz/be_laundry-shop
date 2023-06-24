@@ -91,7 +91,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     Route::put('/orders/{id}/paymentstatus', [OrderController::class, 'updatePaymentStatus']);
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-    Route::get('order-details/{id}', [OrderController::class, 'orderDetails']);
+    Route::get('order-details/{order}', [OrderController::class, 'orderDetails']);
     Route::put('/orders/update-details/{order}', [OrderController::class, 'updateOrderDetails']);
     Route::put('/orders/update-order-items/{order}', [OrderController::class, 'updateOrderItems']);
 
