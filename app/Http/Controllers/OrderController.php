@@ -599,10 +599,12 @@ class OrderController extends Controller
         //     ->first();
 
         $orderItems = DB::table('order_details')
-            ->join('categories', 'category_user.category_id', '=', 'categories.id')
-            ->select('categories.*', 'category_user.*')
+            ->join('item_categories', 'order_details.category_id', '=', 'item_categories.id')
+            ->select('item_categories.*', 'order_details.*')
             ->where('order_id', $order->id)->get();
-        $categoryParent = DB::table('categories')->get();
+
+        $categoryParent = DB::table('item_categories')->get();
+        dd($orderItems, $categoryParent);
         return response()->json([
             'order' => $order->id,
             'orderItems' => $orderItems,
