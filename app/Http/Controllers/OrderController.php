@@ -590,20 +590,21 @@ class OrderController extends Controller
         }
     }
 
-    public function orderDetails($id)
+    public function orderDetails(Order $order)
     {
-        $order = DB::table('orders')
-            ->join('profiles', 'orders.user_id', '=', 'profiles.user_id')
-            ->where('orders.id', $id)
-            ->select('orders.*', 'profiles.*')
-            ->first();
+        // $order = DB::table('orders')
+        //     ->join('profiles', 'orders.user_id', '=', 'profiles.user_id')
+        //     ->where('orders.id', $id)
+        //     ->select('orders.*', 'profiles.*')
+        //     ->first();
+
         $orderItems = DB::table('order_details')
             ->join('categories', 'category_user.category_id', '=', 'categories.id')
             ->select('categories.*', 'category_user.*')
-            ->where('order_id', $id)->get();
+            ->where('order_id', $order->id)->get();
         $categoryParent = DB::table('categories')->get();
         return response()->json([
-            'order' => $order,
+            'order' => $order->id,
             'orderItems' => $orderItems,
             'categoryParent' => $categoryParent
         ]);
