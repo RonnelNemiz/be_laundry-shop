@@ -16,8 +16,4 @@ class Payment extends Model
         'staff_id',
         'status'
     ];
-    public function orders()
-    {
-        return $this->hasMany(Order::class);
-    }
 }
