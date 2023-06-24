@@ -18,7 +18,8 @@ class PaymentMethodController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|max:50',
             'recipient' => 'required|max:50',
-
+            'number' => 'required|numeric',
+            'special_instructions' => 'required',
         ]);
 
         $paymentMethod = PaymentMethod::create($validatedData);

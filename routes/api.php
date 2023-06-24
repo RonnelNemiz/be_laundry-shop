@@ -12,6 +12,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ConsumablesController;
 use App\Http\Controllers\HandlingController;
 use App\Http\Controllers\DetergentController;
 use App\Http\Controllers\ItemCategoriesController;
@@ -134,4 +135,10 @@ Route::middleware('auth:api')->group(function () {
 
     Route::put('/settings/sms/{status}', [SettingsController::class, 'changeSMSSettings']);
     Route::get('/settings/sms/', [SettingsController::class, 'getSMSStatus']);
+
+    Route::get('consumables', [ConsumablesController::class, 'index']);
+    Route::post('add/consumables', [ConsumablesController::class, 'store']);
+    Route::get('consumable/{id}', [ConsumablesController::class, 'edit']);
+    Route::post('consumable/{id}', [ConsumablesController::class, 'update']);
+    Route::delete('consumable/{id}', [ConsumablesController::class, 'destroy']);
 });
