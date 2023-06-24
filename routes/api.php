@@ -67,6 +67,11 @@ Route::middleware('auth:api')->group(function () {
     Route::put('update/payments/{payment}', [PaymentController::class, 'update']);
     Route::delete('delete/payments/{payment}', [PaymentController::class, 'destroy']);
 
+    Route::get('view/payment-method/{paymentMethod}', [PaymentMethodController::class, 'view']);
+    Route::post('add/payment-method', [PaymentMethodController::class, 'store']);
+    Route::put('update/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'update']);
+    Route::delete('delete/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'destroy']);
+
     Route::get('fabcons', [FabconController::class, 'index']);
     // Route::get('show/fabcons', [FabconController::class, 'show']);
     Route::get('view/fabcons/{fabcon}', [FabconController::class, 'view']);

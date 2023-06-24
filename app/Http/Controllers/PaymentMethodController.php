@@ -7,81 +7,71 @@ use Illuminate\Http\Request;
 
 class PaymentMethodController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $paymentMethods = PaymentMethod::all();
-
-        return response()->json($paymentMethods);
+        $paymentMethod = PaymentMethod::all();
+        return $paymentMethod;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|max:50',
+            'recipient' => 'required|max:50',
+
+        ]);
+
+        $paymentMethod = PaymentMethod::create($validatedData);
+
+        return response()->json([
+            $paymentMethod,
+            'status' => 200,
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show()
     {
-        //
+        $paymentMethod = PaymentMethod::get();
+
+        return response()->json($paymentMethod);
+    }
+    public function view($id)
+    {
+        $paymentMethod = PaymentMethod::find($id);
+
+        if (!$paymentMethod) {
+            return response()->json([
+                'message' => 'Payment Method Not Found',
+            ], 500);
+        }
+        return response()->json($paymentMethod, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+
+    public function update(Request $request, PaymentMethod $paymentMethod)
     {
-        //
+
+        $validatedData = $request->validate([
+            'name' => 'required|max:255',
+            'logo' => '',
+            'recipient' => 'required|max:255',
+            'number' => 'required|numeric',
+            'special_instructions' => 'required',
+        ]);
+
+        $paymentMethod->update($validatedData);
+
+        return response()->json([
+            'message' => 'Payment Method data updated successfully',
+            'data' => $paymentMethod
+        ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(PaymentMethod $paymentMethod)
     {
-        //
+        $paymentMethod->delete();
+
+        return response()->json([200, "Successfully Deleted!"]);
     }
 }
