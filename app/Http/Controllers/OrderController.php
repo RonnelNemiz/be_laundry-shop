@@ -62,7 +62,6 @@ class OrderController extends Controller
         }
     }
 
-
     public function totalsales()
     {
 
@@ -101,12 +100,17 @@ class OrderController extends Controller
     {
         $user = auth()->user();
 
-        $orders = Order::where('user_id', $user->id)
-            ->with('categories')
-            ->with('user.profile')
-            ->with('categories.parent')
-            ->with('payment')
-            ->orderBy('id', 'desc')
+        // $orders = Order::where('user_id', $user->id)
+        //     ->with('categories')
+        //     ->with('user.profile')
+        //     ->with('categories.parent')
+        //     ->with('payment')
+        //     ->orderBy('id', 'desc')
+        //     ->get();
+
+        $orders = Order::with(['service', 'handling', 'payment'])
+            ->where('user_id', '=', $user->id)
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json([
@@ -114,8 +118,6 @@ class OrderController extends Controller
             'orders' => $orders
         ]);
     }
-
-
 
     public function orders(Request $request)
     {
@@ -147,6 +149,7 @@ class OrderController extends Controller
                 'profile_id' => $user->profile['id'],
                 'handling_id' => $handle['id'],
                 'service_id' => $serbesyo['id'],
+                'handling_status' => 0,
                 'trans_number' => $transNumber,
                 'status' => 0
             ]);
@@ -183,15 +186,14 @@ class OrderController extends Controller
 
             $smsSetting = Setting::where('name', 'SMS')->first();
 
-            if ($smsSetting->value == true) {
+            if ($smsSetting->value === 'true') {
                 $message = "Hi " . $profile->first_name . " " . $profile->last_name .
                     ', We have received your order. Your order reference number is '
                     . $transNumber . '. Thank you!';
-                $this->deliverNotification($profile, $message);
             }
             return response()->json([
                 'status' => 200,
-                'message' => "Order Successfully added!"
+                'message' => "Order Successfully added!",
             ]);
         } catch (Exception $e) {
             DB::rollback();

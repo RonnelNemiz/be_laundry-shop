@@ -17,6 +17,7 @@ use App\Http\Controllers\DetergentController;
 use App\Http\Controllers\ItemCategoriesController;
 use App\Http\Controllers\ItemTypesController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SalesController;
 use Laravel\Passport\Passport;
 
@@ -125,4 +126,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('item-types', [ItemTypesController::class, 'index']);
 
     Route::get('payment-methods', [PaymentMethodController::class, 'index']);
+
+    Route::put('/settings/sms/{status}', [SettingsController::class, 'changeSMSSettings']);
+    Route::get('/settings/sms/', [SettingsController::class, 'getSMSStatus']);
 });

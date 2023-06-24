@@ -17,6 +17,7 @@ class Order extends Model
         'service_id',
         'handling_id',
         'trans_number',
+        'handling_status',
         'status'
     ];
     protected function generateTransactionNumber()
@@ -51,33 +52,5 @@ class Order extends Model
     public function profile(): BelongsTo
     {
         return $this->belongsTo(Profile::class, 'user_id');
-    }
-
-    public function updateStatus($newStatus)
-    {
-
-        if ($newStatus === 'ready to pickup' && $this->status === 'pending') {
-            $this->status = 'ready to pickup';
-            $this->save();
-        } elseif ($newStatus === 'in progress' && ($this->status === 'ready to pickup' || $this->status === 'pending')) {
-            $this->status = 'in progress';
-            $this->save();
-        } elseif ($newStatus === 'ready for pickup' && $this->status === 'in progress') {
-            $this->status = 'ready for pickup';
-            $this->save();
-        } elseif ($newStatus === 'ready to deliver' && ($this->status === 'ready for pickup' || $this->status === 'in progress')) {
-            $this->status = 'ready to deliver';
-            $this->save();
-        } elseif ($newStatus === 'completed' && ($this->status === 'ready to deliver' || $this->status === 'ready for pickup')) {
-            $this->status = 'completed';
-            $this->save();
-        }
-    }
-    public function updatePaymentStatus($newPaymentStatus)
-    {
-        if ($newPaymentStatus === 'paid' && $this->payment_status === 'unpaid') {
-            $this->payment_status = 'paid';
-            $this->save();
-        }
     }
 }
