@@ -28,8 +28,6 @@ class OrderController extends Controller
         $orders = Order::with(['profile', 'service', 'handling', 'payment'])
             ->orderBy('created_at', 'desc')
             ->get();
-        // $query = Order::query()->with(['user.profile']);
-        // $query->orderBy('id', 'desc');
 
         return OrderResource::collection($orders);
     }
@@ -185,7 +183,7 @@ class OrderController extends Controller
 
             $smsSetting = Setting::where('name', 'SMS')->first();
 
-            if ($smsSetting) {
+            if ($smsSetting->value == true) {
                 $message = "Hi " . $profile->first_name . " " . $profile->last_name .
                     ', We have received your order. Your order reference number is '
                     . $transNumber . '. Thank you!';
