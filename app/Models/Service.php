@@ -21,4 +21,9 @@ class Service extends Model
         }
         return null;
     }
+
+    public function itemCategory()
+    {
+        return $this->hasMany(ItemCategory::class);
+    }
 }

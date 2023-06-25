@@ -71,7 +71,7 @@ class AuthController extends Controller
                 'code' => 200,
                 'access_token' => $token,
                 'user' => $user,
-                'role' => $user->role
+                'role' => $user->role->name
             ]);
         } else {
             abort(422, 'Invalid Credentials');

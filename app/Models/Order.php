@@ -17,8 +17,8 @@ class Order extends Model
         'service_id',
         'handling_id',
         'trans_number',
-        'handling_status',
-        'status'
+        'status',
+        'handling_status'
     ];
     protected function generateTransactionNumber()
     {
