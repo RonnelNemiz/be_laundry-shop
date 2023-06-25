@@ -403,7 +403,7 @@ class OrderController extends Controller
         // } else if ($order->status === 'ready to deliver') {
         //     $message = "Good day " . $customer->first_name . ". Your freshly laundered clothes is ready for delivery! We'll bring it to your doorstep today. Thank you.";
         //     $this->deliverNotification($customer, $message);
-        // }
+    // }
         //  else if ($order->status === 'completed') {
         //     $message = "Your labhonon is completed and ready for pickup/delivery";
         //     $this->deliverNotification($customer, $message);

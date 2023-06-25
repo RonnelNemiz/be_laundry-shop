@@ -1,10 +1,12 @@
 <?php
 
 use Illuminate\Http\Request;
+use Laravel\Passport\Passport;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\FabconController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\PaymentController;
@@ -15,12 +17,11 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ConsumablesController;
 use App\Http\Controllers\HandlingController;
 use App\Http\Controllers\DetergentController;
-use App\Http\Controllers\ItemCategoriesController;
 use App\Http\Controllers\ItemTypesController;
+use App\Http\Controllers\ConsumableController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\SalesController;
-use Laravel\Passport\Passport;
+use App\Http\Controllers\ItemCategoriesController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -34,8 +35,9 @@ Route::get('/account', [UserController::class, 'userRole']);
 Route::get('payments', [PaymentController::class, 'index']);
 
 Route::get('category-list', [CategoryController::class, 'getCategoryWithChild']);
-Route::middleware('auth:api')->group(function () {
 
+
+Route::middleware('auth:api')->group(function () {
     Route::get('roles', [RolesController::class, 'show']);
     Route::get('users', [UserController::class, 'index']);
     Route::post('add/users', [UserController::class, 'store']);
@@ -61,6 +63,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('add/services', [ServiceController::class, 'store']);
     Route::put('update/services/{service}', [ServiceController::class, 'update']);
     Route::delete('delete/services/{service}', [ServiceController::class, 'destroy']);
+
+    Route::post('add/categories', [CategoryController::class, 'store']);
+    Route::post('add/itemTypes', [CategoryController::class, 'addItemCategory']);
 
     // Route::get('payments', [PaymentController::class, 'index']);
     Route::get('view/payments/{payment}', [PaymentController::class, 'view']);
@@ -141,4 +146,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('consumable/{id}', [ConsumablesController::class, 'edit']);
     Route::post('consumable/{id}', [ConsumablesController::class, 'update']);
     Route::delete('consumable/{id}', [ConsumablesController::class, 'destroy']);
+    Route::post('update/categories/{order}', [OrderController::class, 'saveOrderDetails']);
+    Route::post('update/order-details/{categoryId}/{orderId}', [OrderController::class, 'updateOrderDetail']);
+    Route::post('update/profile/{profile}', [ProfileController::class, 'updateProfile']);
+    Route::post('update/status/{order}', [OrderController::class, 'updateStatus']);
+    Route::get('consumables', [ConsumableController::class, 'index']);
 });

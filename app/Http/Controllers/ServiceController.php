@@ -14,16 +14,16 @@ class ServiceController extends Controller
     public function index()
     {
         $services = Service::all();
-    
+
         // Add the image URL to each service
         $services->each(function ($service) {
             $service->image_url = $service->image_url;
         });
-        
-    
+
+
         return $services;
     }
-    
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -37,13 +37,16 @@ class ServiceController extends Controller
             $image = $request->file('image');
             $imagePath = $image->store('images');
             $validatedData['image'] = $imagePath;
-        
+
             // Get the file name and append it to the image URL
             $validatedData['image_url'] = asset('storage/' . basename($imagePath));
         }
-        
 
-        $service = Service::create($validatedData);
+
+        $service = Service::create([
+            'name' => $request->service_name,
+            'description' => $request->description,
+        ]);
 
         return response()->json([
             $service,
@@ -53,7 +56,7 @@ class ServiceController extends Controller
     public function show()
     {
         $services = Service::get();
-    
+
         return response()->json($services);
     }
 
@@ -61,13 +64,13 @@ class ServiceController extends Controller
     {
         $service = Service::find($id);
 
-        if(!$service) {
+        if (!$service) {
             return response()->json([
                 'message' => 'Service Not Found',
             ], 500);
         }
-         // Add the image URL to the service
-         $service->image_url = asset('storage/' . $service->image);
+        // Add the image URL to the service
+        $service->image_url = asset('storage/' . $service->image);
         return response()->json($service, 200);
     }
 
@@ -85,21 +88,19 @@ class ServiceController extends Controller
             $imagePath = $image->store('images');
             $validatedData['image'] = $imagePath;
         }
-    
+
         $service->update($validatedData);
-    
+
         return response()->json([
             'message' => 'Handling data updated successfully',
             'data' => $service
         ], 200);
     }
-    
+
     public function destroy(Service $service)
     {
         $service->delete();
 
         return response()->json([200, "Successfully Deleted!"]);
     }
-
- }
-
+}

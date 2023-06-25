@@ -27,10 +27,28 @@ class ProfileController extends Controller
             'email' => $request->email,
             'role' => 'Customer',
         ]);
-    
-            return response()->json([
-                'status' => 200,
-                'message' => "Sucessfully Updated!"
-            ]);
-        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Sucessfully Updated!"
+        ]);
+    }
+
+    public function updateProfile(Request $request, Profile $profile)
+    {
+        $profile->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'purok' => $request->purok,
+            'brgy' => $request->brgy,
+            'land_mark' => 'leyte',
+            'municipality' => $request->municipality,
+            'contact_number' => $request->contact_number,
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Sucessfully Updated!"
+        ]);
+    }
 }
