@@ -32,6 +32,155 @@ class OrderController extends Controller
         return OrderResource::collection($orders);
     }
 
+    public function updateStatus(Request $request, Order $order)
+    {
+        $name = $request->name;
+        $value = $request->value;
+
+        if ($name === 'order') {
+            $status = "";
+
+            switch ($value) {
+                case "Pending":
+                    $status = 1;
+                    break;
+                case "Accepted":
+                    $status = 2;
+                    break;
+                case "Waiting for Payment":
+                    $status = 3;
+                    break;
+                case "Completed":
+                    $status = 4;
+                    break;
+                default:
+                    $status = 5;
+                    break;
+            }
+
+            $order->update([
+                'status' => $status,
+            ]);
+        } else if ($name === 'handling') {
+
+            $status = "";
+
+            switch ($value) {
+                case "Ready for Pickup":
+                    $status = 1;
+                    break;
+                case "Rider on Pickup":
+                    $status = 2;
+                    break;
+                case "Rider on Delivery":
+                    $status = 3;
+                    break;
+                default:
+                    $status = 4;
+                    break;
+            }
+
+            $order->update([
+                'handling_status' => $status
+            ]);
+        } else {
+            $payment = Payment::where('order_id', $order->id)->first();
+
+            $status = "";
+
+            switch ($value) {
+                case "Unpaid":
+                    $status = 1;
+                default:
+                    $status = 2;
+                    break;
+            }
+
+            $payment->update([
+                'status' => $status
+            ]);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => $name . " update successfully!"
+        ]);
+    }
+
+    public function saveOrderDetails(Request $request, Order $order)
+    {
+        $data = $request->all();
+
+        try {
+            foreach ($data as $categoryName => $categoryData) {
+                $category = ItemCategory::where('name', $categoryName)->first();
+
+                $kilo = $categoryData['kilo'];
+                $children = $categoryData['children'];
+
+                $hasNonEmptyChildQuantity = false;
+                foreach ($children as $child) {
+                    if (!empty($child['quantity'])) {
+                        $hasNonEmptyChildQuantity = true;
+                        break;
+                    }
+                }
+
+                if (empty($kilo) && !$hasNonEmptyChildQuantity) {
+                    continue; // Skip saving if both kilo and children quantities are empty
+                }
+
+                $breakdownHtml = $this->generateBreakdownHtml($children);
+
+                // Insert the parent category data
+                DB::table('order_details')->upsert([
+                    'order_id' => $order->id,
+                    'service_id' => $category->service_id,
+                    'category_id' => $category->id,
+                    'weight' => $kilo,
+                    'items_breakdown' => $breakdownHtml,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ], ['order_id', 'category_id'], ['weight', 'items_breakdown', 'updated_at']);
+            }
+
+            return response()->json(['status' => 200, 'message' => 'Order details saved successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error saving order details', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateOrderDetail(Request $request, $categoryId, $orderId)
+    {
+        $orderDetails = DB::table('order_details')->where("category_id", $categoryId)->where('order_id', $orderId)->update([
+            'items_breakdown' => $request->category
+        ]);
+
+
+        return response()->json(['status' => 200, 'message' => 'Order detail updated successfully']);
+    }
+
+    private function generateBreakdownHtml($children)
+    {
+        $html = '';
+        $hasNonEmptyValue = false;
+
+        foreach ($children as $child) {
+            $name = $child['name'];
+            $quantity = $child['quantity'];
+            if (!empty($quantity)) {
+                $hasNonEmptyValue = true;
+                $html .= '<li>' . $quantity . ' x ' . $name . '</li>';
+            }
+        }
+
+        if ($hasNonEmptyValue) {
+            $html = '<ul>' . $html . '</ul>';
+        }
+
+        return $html;
+    }
+
     public function getPendingOrdersCount()
     {
         $pendingCount = Order::where('status', 'pending')->count();
@@ -61,6 +210,7 @@ class OrderController extends Controller
             ]);
         }
     }
+
 
     public function totalsales()
     {
@@ -100,17 +250,12 @@ class OrderController extends Controller
     {
         $user = auth()->user();
 
-        // $orders = Order::where('user_id', $user->id)
-        //     ->with('categories')
-        //     ->with('user.profile')
-        //     ->with('categories.parent')
-        //     ->with('payment')
-        //     ->orderBy('id', 'desc')
-        //     ->get();
-
-        $orders = Order::with(['service', 'handling', 'payment'])
-            ->where('user_id', '=', $user->id)
-            ->orderBy('created_at', 'desc')
+        $orders = Order::where('user_id', $user->id)
+            ->with('categories')
+            ->with('user.profile')
+            ->with('categories.parent')
+            ->with('payment')
+            ->orderBy('id', 'desc')
             ->get();
 
         return response()->json([
@@ -118,6 +263,8 @@ class OrderController extends Controller
             'orders' => $orders
         ]);
     }
+
+
 
     public function orders(Request $request)
     {
@@ -149,9 +296,9 @@ class OrderController extends Controller
                 'profile_id' => $user->profile['id'],
                 'handling_id' => $handle['id'],
                 'service_id' => $serbesyo['id'],
-                'handling_status' => 0,
                 'trans_number' => $transNumber,
-                'status' => 0
+                'status' => 0,
+                'handling_status' => 0
             ]);
             $newOrder->save();
 
@@ -186,7 +333,7 @@ class OrderController extends Controller
 
             $smsSetting = Setting::where('name', 'SMS')->first();
 
-            if ($smsSetting->value == 'true') {
+            if ($smsSetting->value === true) {
                 $message = "Hi " . $profile->first_name . " " . $profile->last_name .
                     ', We have received your order. Your order reference number is '
                     . $transNumber . '. Thank you!';
@@ -194,7 +341,7 @@ class OrderController extends Controller
             }
             return response()->json([
                 'status' => 200,
-                'message' => "Order Successfully added!",
+                'message' => "Order Successfully added!"
             ]);
         } catch (Exception $e) {
             DB::rollback();
@@ -369,48 +516,48 @@ class OrderController extends Controller
         }
     }
 
-    public function updateStatus(Request $request, $id)
-    {
-        $order = Order::findOrFail($id);
+    // public function updateStatus(Request $request, $id)
+    // {
+    //     $order = Order::findOrFail($id);
 
-        $newStatus = $request->input('status');
-        $customer = Profile::where('user_id', $order->user_id)->first();
+    //     $newStatus = $request->input('status');
+    //     $customer = Profile::where('user_id', $order->user_id)->first();
 
-        if ($newStatus === 'ready to pickup' && $order->status === 'pending') {
-            $order->status = 'ready to pickup';
-            $order->save();
-        } elseif ($newStatus === 'in progress' && ($order->status === 'ready to pickup' || $order->status === 'pending')) {
-            $order->status = 'in progress';
-            $order->save();
-        } elseif ($newStatus === 'ready for pickup' && $order->status === 'in progress') {
-            $order->status = 'ready for pickup';
-            $order->save();
-        } elseif ($newStatus === 'ready to deliver' && ($order->status === 'ready for pickup' || $order->status === 'in progress')) {
-            $order->status = 'ready to deliver';
-            $order->save();
-        } elseif ($newStatus === 'completed' && ($order->status === 'ready to deliver' || $order->status === 'ready for pickup')) {
-            $order->status = 'completed';
-            $order->save();
-        }
+    //     if ($newStatus === 'ready to pickup' && $order->status === 'pending') {
+    //         $order->status = 'ready to pickup';
+    //         $order->save();
+    //     } elseif ($newStatus === 'in progress' && ($order->status === 'ready to pickup' || $order->status === 'pending')) {
+    //         $order->status = 'in progress';
+    //         $order->save();
+    //     } elseif ($newStatus === 'ready for pickup' && $order->status === 'in progress') {
+    //         $order->status = 'ready for pickup';
+    //         $order->save();
+    //     } elseif ($newStatus === 'ready to deliver' && ($order->status === 'ready for pickup' || $order->status === 'in progress')) {
+    //         $order->status = 'ready to deliver';
+    //         $order->save();
+    //     } elseif ($newStatus === 'completed' && ($order->status === 'ready to deliver' || $order->status === 'ready for pickup')) {
+    //         $order->status = 'completed';
+    //         $order->save();
+    //     }
 
-        // send sms depends on the order status
-        // if ($order->status === 'ready to pickup') {
-        //     $message = "Good day " . $customer->first_name . ". Your dirty laundry is ready to pickup! Our team will collect it from your house. Please be ready. Thank you.";
-        //     $this->deliverNotification($customer, $message);
-        // } else if ($order->status === 'ready for pickup') {
-        //     $message = "Good day " . $customer->first_name . ". Your laundry is ready for pickup! Collect your freshly laundered clothes at our laundry shop. The total amount to be paid is $" . $order->total . ".Thank you.";
-        //     $this->deliverNotification($customer, $message);
-        // } else if ($order->status === 'ready to deliver') {
-        //     $message = "Good day " . $customer->first_name . ". Your freshly laundered clothes is ready for delivery! We'll bring it to your doorstep today. Thank you.";
-        //     $this->deliverNotification($customer, $message);
+    //     // send sms depends on the order status
+    //     // if ($order->status === 'ready to pickup') {
+    //     //     $message = "Good day " . $customer->first_name . ". Your dirty laundry is ready to pickup! Our team will collect it from your house. Please be ready. Thank you.";
+    //     //     $this->deliverNotification($customer, $message);
+    //     // } else if ($order->status === 'ready for pickup') {
+    //     //     $message = "Good day " . $customer->first_name . ". Your laundry is ready for pickup! Collect your freshly laundered clothes at our laundry shop. The total amount to be paid is $" . $order->total . ".Thank you.";
+    //     //     $this->deliverNotification($customer, $message);
+    //     // } else if ($order->status === 'ready to deliver') {
+    //     //     $message = "Good day " . $customer->first_name . ". Your freshly laundered clothes is ready for delivery! We'll bring it to your doorstep today. Thank you.";
+    //     //     $this->deliverNotification($customer, $message);
+    //     // }
+    //     //  else if ($order->status === 'completed') {
+    //     //     $message = "Your labhonon is completed and ready for pickup/delivery";
+    //     //     $this->deliverNotification($customer, $message);
+    //     // }
+
+    //     return response()->json(['message' => 'Order status updated successfully']);
     // }
-        //  else if ($order->status === 'completed') {
-        //     $message = "Your labhonon is completed and ready for pickup/delivery";
-        //     $this->deliverNotification($customer, $message);
-        // }
-
-        return response()->json(['message' => 'Order status updated successfully']);
-    }
 
 
     public function updatePaymentStatus(Request $request, $id)
@@ -607,11 +754,39 @@ class OrderController extends Controller
             ->where('order_id', $order->id)->get();
 
         $categoryParent = DB::table('item_categories')->get();
-        dd($orderItems, $categoryParent);
+        $categoryChildren = DB::table('item_types')
+            ->select('category_id', DB::raw('JSON_ARRAYAGG(name) as children'))
+            ->groupBy('category_id')
+            ->get();
+
+        $categories = [];
+
+        foreach ($categoryParent as $parent) {
+            $parentCategory = [
+                'id' => $parent->id,
+                'name' => $parent->name,
+                'children' => [],
+            ];
+
+            foreach ($categoryChildren as $child) {
+                if ($child->category_id === $parent->id) {
+                    $childCategory = [
+                        'category_id' => $child->category_id,
+                        'name' => json_decode($child->children),
+                    ];
+
+                    $parentCategory['children'][] = $childCategory;
+                }
+            }
+
+            $categories[] = $parentCategory;
+        }
+
         return response()->json([
-            'order' => $order->id,
+            'order' => $order,
             'orderItems' => $orderItems,
-            'categoryParent' => $categoryParent
+            'categories' => $categories,
+            'profile' => $order->profile
         ]);
     }
 
