@@ -150,5 +150,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('update/order-details/{categoryId}/{orderId}', [OrderController::class, 'updateOrderDetail']);
     Route::post('update/profile/{profile}', [ProfileController::class, 'updateProfile']);
     Route::post('update/status/{order}', [OrderController::class, 'updateStatus']);
-    // Route::get('consumables', [ConsumableController::class, 'index']);r
+    // Route::get('consumables', [ConsumableController::class, 'index']);
 });
