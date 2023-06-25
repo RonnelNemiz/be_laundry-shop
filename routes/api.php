@@ -137,6 +137,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('item-types', [ItemTypesController::class, 'index']);
 
     Route::get('payment-methods', [PaymentMethodController::class, 'index']);
+    Route::post('add/payment-method', [PaymentMethodController::class, 'store']);
 
     Route::put('/settings/sms/{status}', [SettingsController::class, 'changeSMSSettings']);
     Route::get('/settings/sms/', [SettingsController::class, 'getSMSStatus']);
