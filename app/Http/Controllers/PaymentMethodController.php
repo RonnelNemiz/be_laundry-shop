@@ -22,25 +22,26 @@ class PaymentMethodController extends Controller
             'recipient' => 'required|max:50',
             'number' => 'required|numeric',
             'special_instructions' => 'required',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            // 'logo' => '',
+            // 'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         // Get the uploaded image file
-        $imageFile = $request->file('logo');
+        // $imageFile = $request->file('logo');
 
         // Generate a unique file name
-        $fileName = uniqid('logo_') . '.' . $imageFile->getClientOriginalExtension();
+        // $fileName = uniqid('logo_') . '.' . $imageFile->getClientOriginalExtension();
 
         // Define the path to store the original image
-        $imagePath = 'public/images/' . $fileName;
+        // $imagePath = 'public/images/' . $fileName;
 
         // Save the original image
-        Storage::putFileAs('public/images', $imageFile, $fileName);
+        // Storage::putFileAs('public/images', $imageFile, $fileName);
 
         // Get the public URL of the original image
-        $imageUrl = Storage::url($imagePath);
+        // $imageUrl = Storage::url($imagePath);
 
-        $validatedData['logo'] = $imageUrl;
+        // $validatedData['logo'] = $imageUrl;
 
         $paymentMethod = PaymentMethod::create($validatedData);
 

@@ -54,7 +54,7 @@ class UserController extends Controller
         $user->update([
             'email' => $request->email,
             'password'  => Hash::make($request->password),
-            'role_id' => $request->role_id,
+            'role_id' => 4,
         ]);
 
         $profile = $user->profile;

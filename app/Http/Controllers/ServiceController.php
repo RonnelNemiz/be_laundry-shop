@@ -23,41 +23,37 @@ class ServiceController extends Controller
 
         return $services;
     }
-
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'service_name' => 'required|max:50',
-            'service_price' => 'required|numeric',
+            'name' => 'required|max:50',
             'description' => 'required|max:255',
             'image' => '',
         ]);
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imagePath = $image->store('images');
-            $validatedData['image'] = $imagePath;
+        $service = Service::create($validatedData);
 
-            // Get the file name and append it to the image URL
-            $validatedData['image_url'] = asset('storage/' . basename($imagePath));
-        }
-
-
-        $service = Service::create([
-            'name' => $request->service_name,
-            'description' => $request->description,
-        ]);
+        // return response()->json($handling, 200);
 
         return response()->json([
             $service,
             'status' => 200,
         ]);
     }
+
     public function show()
     {
         $services = Service::get();
 
         return response()->json($services);
+    }
+    public function showtoselect()
+    {
+        $services = Service::get();
+
+        return response()->json([
+            'services' => $services,
+        ]);
     }
 
     public function view($id)
@@ -77,10 +73,9 @@ class ServiceController extends Controller
     public function update(Request $request, Service $service)
     {
         $validatedData = $request->validate([
-            'service_name' => 'required|string|max:50',
+            'name' => 'required|string|max:50',
             'description' => 'required|string|max:255',
-            'service_price' => 'required|numeric',
-            // 'image' => '',
+            'image' => '',
         ]);
 
         if ($request->hasFile('image')) {
@@ -92,7 +87,7 @@ class ServiceController extends Controller
         $service->update($validatedData);
 
         return response()->json([
-            'message' => 'Handling data updated successfully',
+            'message' => 'Service data updated successfully',
             'data' => $service
         ], 200);
     }
