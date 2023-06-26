@@ -53,4 +53,9 @@ class Order extends Model
     {
         return $this->belongsTo(Profile::class, 'user_id');
     }
+
+    public function consumables()
+    {
+        return $this->belongsToMany(Consumable::class, 'order_consumables');
+    }
 }

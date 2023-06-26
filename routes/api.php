@@ -148,8 +148,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('consumable/{id}', [ConsumablesController::class, 'update']);
     Route::delete('consumable/{id}', [ConsumablesController::class, 'destroy']);
     Route::post('update/categories/{order}', [OrderController::class, 'saveOrderDetails']);
-    Route::post('update/order-details/{categoryId}/{orderId}', [OrderController::class, 'updateOrderDetail']);
+    Route::post('update/order-details/{orderDetailsId}', [OrderController::class, 'updateOrderDetail']);
     Route::post('update/profile/{profile}', [ProfileController::class, 'updateProfile']);
     Route::post('update/status/{order}', [OrderController::class, 'updateStatus']);
-    // Route::get('consumables', [ConsumableController::class, 'index']);
+    Route::post('add/order/consumables/{order}', [ConsumablesController::class, 'addConsumables']);
+    Route::post('add/order/consumables/quantity/{order}/{consumableId}', [ConsumablesController::class, 'updateOrderConsumableQuantity']);
+    Route::delete('delete/order-details/{orderDetailsId}', [OrderController::class, 'destroyOrderDetails']);
+    Route::delete('delete/consumable/{order}/{consumableId}', [OrderController::class, 'destroyConsumable']);
+    Route::post('order/pay/{order}', [OrderController::class, 'paying']);
 });

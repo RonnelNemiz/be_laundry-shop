@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ConsumablesResource;
+use Exception;
+use App\Models\Order;
 use App\Models\Consumable;
 use Illuminate\Http\Request;
-use Exception;
+use Illuminate\Support\Facades\DB;
+use App\Http\Resources\ConsumablesResource;
 
 class ConsumablesController extends Controller
 {
@@ -26,6 +28,80 @@ class ConsumablesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function addConsumables(Request $request, Order $order)
+    {
+        $consumables = $request->consumables;
+        // Extract the IDs from the array of consumable objects
+        $consumableIds = array_column($consumables, 'id');
+
+        // $orderDetails = DB::table('order_details')->where('order_id', $order->id)->first();
+
+        // $totalExpenses = 0;
+
+        // foreach ($consumables as $consumable) {
+        //     $totalExpenses += $consumable['price'];
+        // }
+
+        // // $exBreakdown = $this->generateBreakdownHtml($$consumables);
+
+        // $orderDetails->update([
+        //     'expenses' => $totalExpenses,
+        //     'total' => $order->total + $totalExpenses,
+        //     // 'expenses_breakdown' => $exBreakdown
+        // ]);
+
+        $order->consumables()->sync($consumableIds);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Successfully added new consumables to order"
+        ]);
+    }
+
+    public function updateOrderConsumableQuantity(Request $request, Order $order, $consumableId)
+    {
+        $orderDetails = DB::table('order_details')->where('order_id', $order->id)->first();
+
+        $quantity = $request->quantity;
+
+        $totalExpenses = $order->find($consumableId) * $quantity;
+
+        $orderDetails->update([
+            'expenses' => $totalExpenses,
+            'total' => $order->total + $totalExpenses,
+        ]);
+
+        // Update the quantity for the order_consumables pivot
+        $order->consumables()->syncWithoutDetaching([$consumableId => ['quantity' => $quantity]]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Quantity updated successfully.',
+        ]);
+    }
+
+    private function generateBreakdownHtml($children)
+    {
+        $html = '';
+        $hasNonEmptyValue = false;
+
+        foreach ($children as $child) {
+            $name = $child['name'];
+            $price = $child['price'];
+            if (!empty($quantity)) {
+                $hasNonEmptyValue = true;
+                $html .= '<li>' . $price . ' x ' . $name . '</li>';
+            }
+        }
+
+        if ($hasNonEmptyValue) {
+            $html = '<ul>' . $html . '</ul>';
+        }
+
+        return $html;
+    }
+
     public function create()
     {
         //

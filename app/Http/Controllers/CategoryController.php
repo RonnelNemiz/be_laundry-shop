@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\CategoryResource;
+use App\Models\Service;
+use App\Models\ItemType;
 use App\Models\ItemCategory;
 use Illuminate\Http\Request;
+use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
@@ -70,5 +72,36 @@ class CategoryController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    public function store(Request $request)
+    {
+        $service = Service::where('name', $request->service)->first();
+
+        $newCategory = ItemCategory::create([
+            'service_id' => $service->id,
+            'name' => $request->category,
+        ]);
+
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Successfully added new category"
+        ]);
+    }
+
+    public function addItemCategory(Request $request)
+    {
+        $category = ItemCategory::where('name', $request->category)->first();
+
+        $newItemCategory = ItemType::create([
+            'category_id' => $category->id,
+            'name' => $request->type
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Successfully added new category item"
+        ]);
     }
 }

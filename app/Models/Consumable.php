@@ -13,4 +13,9 @@ class Consumable extends Model
         'price',
         'cost',
     ];
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_consumables');
+    }
 }

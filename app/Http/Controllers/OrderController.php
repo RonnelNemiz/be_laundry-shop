@@ -13,10 +13,7 @@ use App\Models\ItemCategory;
 use App\Models\Handling;
 use App\Models\Setting;
 use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\TryCatch;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\OrderResource;
 
@@ -42,19 +39,28 @@ class OrderController extends Controller
 
             switch ($value) {
                 case "Pending":
+                    $status = 0;
+                    break;
+                case "Confirmed":
                     $status = 1;
                     break;
-                case "Accepted":
+                case "On Queue":
                     $status = 2;
                     break;
-                case "Waiting for Payment":
+                case "Washing":
                     $status = 3;
                     break;
-                case "Completed":
+                case "Ready for Payment":
                     $status = 4;
                     break;
-                default:
+                case "Completed":
                     $status = 5;
+                    break;
+                case "Canceled":
+                    $status = 6;
+                    break;
+                default:
+                    $status = 0;
                     break;
             }
 
@@ -66,17 +72,23 @@ class OrderController extends Controller
             $status = "";
 
             switch ($value) {
-                case "Ready for Pickup":
-                    $status = 1;
-                    break;
-                case "Rider on Pickup":
-                    $status = 2;
+                case "Ready on Pickup":
+                    $status = 0;
                     break;
                 case "Rider on Delivery":
+                    $status = 1;
+                    break;
+                case "Ready fir Store Pickup":
+                    $status = 2;
+                    break;
+                case "Delivered":
                     $status = 3;
                     break;
-                default:
+                case "Picked Up":
                     $status = 4;
+                    break;
+                default:
+                    $status = 0;
                     break;
             }
 
@@ -90,9 +102,13 @@ class OrderController extends Controller
 
             switch ($value) {
                 case "Unpaid":
+                    $status = 0;
+                    break;
+                case "Paid":
                     $status = 1;
+                    break;
                 default:
-                    $status = 2;
+                    $status = 0;
                     break;
             }
 
@@ -107,6 +123,29 @@ class OrderController extends Controller
         ]);
     }
 
+    public function paying(Request $request, Order $order)
+    {
+        $paid = $order->update([
+            'pay' => $request->pay,
+            'change' => $request->change
+        ]);
+
+        $order->payment()->update([
+            'status' => 1
+        ]);
+
+        if ($paid) {
+            return response()->json([
+                'status' => 200,
+                'message' => "Your payment is successfully updated"
+            ]);
+        }
+        return response()->json([
+            'status' => 500,
+            'message' => "Failed to submit payment!"
+        ]);
+    }
+
     public function saveOrderDetails(Request $request, Order $order)
     {
         $data = $request->all();
@@ -114,6 +153,10 @@ class OrderController extends Controller
         try {
             foreach ($data as $categoryName => $categoryData) {
                 $category = ItemCategory::where('name', $categoryName)->first();
+
+                if (!isset($categoryData['children'])) {
+                    continue; // Skip processing if 'children' key is not present
+                }
 
                 $kilo = $categoryData['kilo'];
                 $children = $categoryData['children'];
@@ -131,6 +174,9 @@ class OrderController extends Controller
                 }
 
                 $breakdownHtml = $this->generateBreakdownHtml($children);
+                $dividedKilo = ceil($kilo / 7);
+                $totalPrice = $dividedKilo * $category->price;
+
 
                 // Insert the parent category data
                 DB::table('order_details')->upsert([
@@ -141,6 +187,7 @@ class OrderController extends Controller
                     'items_breakdown' => $breakdownHtml,
                     'created_at' => now(),
                     'updated_at' => now(),
+                    'total' => $totalPrice,
                 ], ['order_id', 'category_id'], ['weight', 'items_breakdown', 'updated_at']);
             }
 
@@ -150,14 +197,51 @@ class OrderController extends Controller
         }
     }
 
-    public function updateOrderDetail(Request $request, $categoryId, $orderId)
+
+    public function updateOrderDetail(Request $request, $orderDetailsId)
     {
-        $orderDetails = DB::table('order_details')->where("category_id", $categoryId)->where('order_id', $orderId)->update([
+        $orderDetails = DB::table('order_details')->where('id', $orderDetailsId)->update([
             'items_breakdown' => $request->category
         ]);
 
+        if ($orderDetails) {
+            return response()->json(['status' => 200, 'message' => 'Order detail updated successfully']);
+        }
+        return response()->json(['status' => 500, 'message' => 'Failed to update order details']);
+    }
 
-        return response()->json(['status' => 200, 'message' => 'Order detail updated successfully']);
+    public function destroyOrderDetails($orderDetailsId)
+    {
+        $removed = DB::table('order_details')->where('id', $orderDetailsId)->delete();
+
+        if ($removed) {
+            return response()->json([
+                'status' => 200,
+                'message' => "Successfully remove order details"
+            ]);
+        }
+
+        return response()->json([
+            'status' => 404,
+            'message' => "Order details not found!"
+        ]);
+    }
+
+    public function destroyConsumable(Order $order, $consumableId)
+    {
+        $consumable = $order->consumables()->detach($consumableId);
+
+        if ($consumable) {
+            return response()->json([
+                'status' => 200,
+                'message' => "Successfully remove consumable"
+            ]);
+        }
+
+        return response()->json([
+            'status' => 404,
+            'message' => "Consumable not found"
+        ]);
     }
 
     private function generateBreakdownHtml($children)
@@ -786,7 +870,8 @@ class OrderController extends Controller
             'order' => $order,
             'orderItems' => $orderItems,
             'categories' => $categories,
-            'profile' => $order->profile
+            'profile' => $order->profile,
+            'consumables' => $order->consumables
         ]);
     }
 

@@ -20,6 +20,8 @@ class CreateOrdersTable extends Migration
             $table->integer('service_id');
             $table->integer('handling_id');
             $table->string('trans_number');
+            $table->string('pay')->nullable();
+            $table->string('change')->nullable();
             $table->timestamps();
         });
     }
