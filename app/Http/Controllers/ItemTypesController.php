@@ -85,10 +85,21 @@ class ItemTypesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, ItemType $itemType)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => '',
+        ]);
+
+        $itemType->update($validatedData);
+
+        return response()->json([
+            'message' => 'Item type data updated successfully',
+            'data' => $itemType
+        ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -96,8 +107,10 @@ class ItemTypesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(ItemType $itemType)
     {
-        //
+        $itemType->delete();
+
+        return response()->json([200, "Successfully Deleted!"]);
     }
 }

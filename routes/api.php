@@ -63,6 +63,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('add/services', [ServiceController::class, 'store']);
     Route::put('update/services/{service}', [ServiceController::class, 'update']);
     Route::delete('delete/services/{service}', [ServiceController::class, 'destroy']);
+    Route::get('show/servicestoselect', [ServiceController::class, 'showtoselect']);
 
     Route::post('add/categories', [CategoryController::class, 'store']);
     Route::post('add/itemTypes', [CategoryController::class, 'addItemCategory']);
@@ -133,8 +134,15 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/pending-orders-count', [OrderController::class, 'getPendingOrdersCount']);
 
     Route::get('item-categories', [ItemCategoriesController::class, 'index']);
+    Route::put('update/item-categories/{itemCategory}', [ItemCategoriesController::class, 'update']);
+    Route::delete('delete/item-categories/{itemCategory}', [ItemCategoriesController::class, 'destroy']);
+    Route::get('show/categorytoselect', [ItemCategoriesController::class, 'showtoselectcategory']);
+    Route::post('/add/item-categories', [ItemCategoriesController::class, 'store']);
 
     Route::get('item-types', [ItemTypesController::class, 'index']);
+    Route::put('update/item-type/{itemType}', [ItemTypesController::class, 'update']);
+    Route::delete('delete/item-type/{itemType}', [ItemTypesController::class, 'destroy']);
+    Route::post('/add/itemTypes', [ItemTypesController::class, 'store']);
 
     Route::get('payment-methods', [PaymentMethodController::class, 'index']);
     Route::post('add/payment-method', [PaymentMethodController::class, 'store']);

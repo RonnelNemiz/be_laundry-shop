@@ -10,7 +10,7 @@ class ItemCategory extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'service_id'
+        'name', 'service_id', 'price'
     ];
 
     public function itemTypes()

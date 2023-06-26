@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ItemCategory;
+use App\Models\ItemType;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
@@ -52,9 +53,21 @@ class ItemCategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $validatedData = $request->validate([
+            'name' => 'required|max:255',
+            'service_id' => 'required',
+            'price' => 'required|numeric',
+        ]);
 
+        $itemCategory = ItemCategory::create($validatedData);
+
+        // return response()->json($itemCategory, 200);
+
+        return response()->json([
+            $itemCategory,
+            'status' => 200,
+        ]);
+    }
     /**
      * Display the specified resource.
      *
@@ -64,6 +77,14 @@ class ItemCategoriesController extends Controller
     public function show($id)
     {
         //
+    }
+    public function showtoselectcategory()
+    {
+        $itemCategory = ItemCategory::get();
+
+        return response()->json([
+            'category' => $itemCategory,
+        ]);
     }
 
     /**
@@ -84,10 +105,22 @@ class ItemCategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, ItemCategory $itemCategory)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'service_id' => '',
+            'price' => 'required|numeric',
+        ]);
+
+        $itemCategory->update($validatedData);
+
+        return response()->json([
+            'message' => 'ItemCategory data updated successfully',
+            'data' => $itemCategory
+        ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -95,8 +128,10 @@ class ItemCategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(ItemCategory $itemCategory)
     {
-        //
+        $itemCategory->delete();
+
+        return response()->json([200, "Successfully Deleted!"]);
     }
 }

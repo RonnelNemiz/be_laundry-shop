@@ -335,10 +335,7 @@ class OrderController extends Controller
         $user = auth()->user();
 
         $orders = Order::where('user_id', $user->id)
-            ->with('categories')
-            ->with('user.profile')
-            ->with('categories.parent')
-            ->with('payment')
+            ->with(['user.profile', 'payment', 'service', 'handling'])
             ->orderBy('id', 'desc')
             ->get();
 
